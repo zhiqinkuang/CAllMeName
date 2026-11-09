@@ -1,0 +1,13 @@
+
+ RUN  v3.2.4 /workspace/callmeming
+
+ ✓ tests/unit/rate-limit.test.ts (3 tests) 7ms
+ ✓ tests/api/checkout.test.ts (4 tests) 13ms
+ ✓ tests/api/e2e.test.ts (1 test) 24ms
+ ✓ tests/api/results-webhook.test.ts (7 tests) 50ms
+
+ Test Files  4 passed (4)
+      Tests  15 passed (15)
+   Start at  11:59:27
+   Duration  622ms (transform 284ms, setup 398ms, collect 788ms, tests 94ms, environment 0ms, prepare 416ms)
+

@@ -1,0 +1,35 @@
+{
+  "checkoutStatus": 200,
+  "checkoutKeys": [
+    "checkoutUrl"
+  ],
+  "checkoutUrl": "https://checkout.waffo.ai/mock/checkout/cs_mock_1",
+  "orderStatus": "awaiting_payment",
+  "tokenHashLen": 64,
+  "successUrl": "https://callmeming.com/results/1SYbk20Nmp6GujXyfNLgBbMW9tsNc8H-YVepdyscY8M",
+  "hasCancelUrl": false,
+  "hasBuyerEmail": false,
+  "earlyStatus": 202,
+  "earlyBody": {
+    "status": "generating"
+  },
+  "webhookStatus": 200,
+  "readyStatus": 200,
+  "readyCardCount": 3,
+  "audioUrls": [
+    null,
+    null,
+    null
+  ],
+  "selfIntroLangSample": "Hi, my Chinese name is 莫清平 (Mò Qīngpíng). You can roughly say it as \"Mo Qingping\". Nice to meet you!",
+  "emailSent": 1,
+  "emailTo": "buyer@example.com",
+  "emailHasUrl": true,
+  "noFortune": true,
+  "badSigStatus": 401,
+  "expiredStatus": 404,
+  "expiredBody": {
+    "error": "not_found",
+    "message": "This result link is invalid."
+  }
+}

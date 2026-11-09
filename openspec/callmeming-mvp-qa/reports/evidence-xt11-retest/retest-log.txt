@@ -1,0 +1,18 @@
+DEF-01 englishName initial="" empty=true
+DEF-01 Either is fine selected=false
+DEF-01 Calm selected=false
+DEF-01 any feeling chip on=0
+DEF-02 has playable audio=false
+DEF-02 has standalone word audio=false
+DEF-02 has pronunciation=true
+DEF-02 generator after-stage pronunciation=true
+DEF-02 FAQ $6.99 pronunciation=true
+DEF-02 Custom row pronunciation=true
+DEF-03 fail path message=true showedCopied=false
+DEF-03 success copied=["林安然","Hi, my Chinese name is 林安然."]
+DEF-03 success shows Copied name=true
+DEF-01 form-scoped recheck:
+form englishName=""
+form style selected="Either is fine"
+form feeling on count=0
+Calm not selected
