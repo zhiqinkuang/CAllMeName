@@ -67,6 +67,10 @@ Contract six only: Friendly / Calm / Bright / Elegant / Modern / Scholarly.
 
 See `style-qa/` and `STYLE-NOTES.md` (includes API vs exhibit diffs).
 
+## Docs
+
+- Deploy / PR prep (B-F3): [`docs/DEPLOY-CHECKLIST.md`](docs/DEPLOY-CHECKLIST.md)
+
 ## Scope note
 
 This F-T3–F-T8 pass implements **frontend clients + UI wiring**. Empty `app/api/**` placeholders may be filled by a parallel backend agent on the shared box; this frontend task did not author Route Handlers.

@@ -4,7 +4,7 @@ GitHub Actions (`.github/workflows/ci.yml`) runs on pull requests and pushes to 
 
 ## What it runs
 
-- Node.js 20
+- Node.js 22
 - `npm ci`
 - `npm run lint`
 - `npm run typecheck` (`tsc --noEmit`)
