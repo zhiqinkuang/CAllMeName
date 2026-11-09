@@ -1,0 +1,8 @@
+HTTP/1.1 200 OK
+vary: RSC, Next-Router-State-Tree, Next-Router-Prefetch, Next-Router-Segment-Prefetch
+content-type: application/json; charset=utf-8
+Date: Mon, 09 Nov 2026 03:57:35 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+

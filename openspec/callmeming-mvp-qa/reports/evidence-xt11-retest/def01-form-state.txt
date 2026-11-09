@@ -1,0 +1,6 @@
+form englishName=""
+form style selected="Either is fine"
+form Either is fine on count=1
+page Either is fine on count=2
+form feeling on count=0
+feelings=[{"text":"Friendly","on":false},{"text":"Calm","on":false},{"text":"Bright","on":false},{"text":"Elegant","on":false},{"text":"Modern","on":false},{"text":"Scholarly","on":false}]

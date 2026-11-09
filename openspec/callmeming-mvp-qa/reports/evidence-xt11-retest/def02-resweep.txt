@@ -1,0 +1,10 @@
+playable audio present=false
+word boundary audio present=false
+listen present=false
+pronunciation present=true
+generator cue exact=true
+---hits---
+Like a direction? Get three complete cards with meaning, pronunciation, and a self-intro you can say.
+Meaning, pronunciation, self-intro. Three complete paper cards.
+Meaning, pronunciation, and a line you can say when you introduce yourself.
+Three complete name cards: large hanzi, pinyin, pronunciation, why it suits you, and a copyable self-introduction.

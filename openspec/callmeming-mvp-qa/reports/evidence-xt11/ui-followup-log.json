@@ -1,0 +1,52 @@
+[
+  {
+    "id": "RP-03",
+    "status": "PASS",
+    "detail": "名 | CallMeMing | PREPARING YOUR NAMES | We are preparing your Chinese names |  | This usually takes a moment. Keep this page open—we will show your th"
+  },
+  {
+    "id": "RP-06",
+    "status": "PASS",
+    "detail": "名 | CallMeMing | RESULTS | We could not prepare your names |  | We could not prepare your names. Please contact support with your payment email. |  | Try "
+  },
+  {
+    "id": "CO-02",
+    "status": "PASS",
+    "detail": "reqs=0 errs=[\"Please enter your English name.\"]"
+  },
+  {
+    "id": "CO-13",
+    "status": "PASS",
+    "detail": "url=http://127.0.0.1:3000/ reqs=1"
+  },
+  {
+    "id": "EX-03",
+    "status": "PASS",
+    "detail": "no login"
+  },
+  {
+    "id": "EX-01-ui",
+    "status": "CHECK",
+    "detail": "negation present"
+  },
+  {
+    "id": "EX-07",
+    "status": "PASS",
+    "detail": "no non-goals"
+  },
+  {
+    "id": "EX-05",
+    "status": "PASS",
+    "detail": "no canceled handler in HTML"
+  },
+  {
+    "id": "FAQ-audio",
+    "status": "DEFECT_COPY_AUDIO",
+    "detail": "FAQ claims playable audio"
+  },
+  {
+    "id": "HP-13-feeling",
+    "status": "PREFILLED_CALM",
+    "detail": "feeling chip"
+  }
+]

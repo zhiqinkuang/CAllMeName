@@ -1,0 +1,46 @@
+[PASS] HP-01: CallMeMing — Real Chinese Name Generator for Learners
+[PASS] HP-02: CallMeMing — A Real Chinese Name generator for learners. This Chinese name gener
+[PASS] HP-03: Get a real Chinese name you can actually introduce yourself with
+[PASS] HP-04: CallMeMing gives you a real Chinese name—not a transliterati
+[PASS] HP-05: 名
+CallMeMing
+How it works
+Custom name · $6.99
+[PASS] HP-06: freeBtn=1 paid=1
+[PASS] HP-07-faq: count=3
+[FAIL] HP-07-order: 66,-1,13,1332
+[PASS_NEGATION_OK] HP-10: checked
+[FAIL_PREFILL] HP-13-prefill: englishName="Elena"
+[PASS] CO-12: cta=1
+[FAIL] CO-03: Typically feminine|Typically masculine|Either is fine|Typically feminine|Typically masculine|Either is fine
+[PASS] CO-04: Friendly|Calm|Bright|Elegant|Modern|Scholarly
+[PASS] CO-05: no fortune in form
+[PASS] EX-04: no card form
+[PASS] EX-08: USD price
+[PASS] SE-10: no email field in form
+[PASS] FC-01: hero=毛芷若 support=姜静,范浩
+[PASS] FC-01-lightweight: whyCount=0
+[PASS_STACKED] HP-09/FC-02: [{"y":365,"x":0,"w":390},{"y":602,"x":20,"w":159},{"y":602,"x":195,"w":176}]
+[PASS] FC-06: You can generate a few names each day. Come back tomorrow, or customize three complete cards for $6.99.
+Customize three 
+[PASS] FC-07: paid inputs=1
+[PASS] FC-03: Writing names…
+[PASS] HP-12: Waiting for a click
+[PASS] RP-07: 名 | CallMeMing | RESULTS | This result link is not available |  | This result link is invalid.
+[PASS_PRIMARY_PLUS_OTHERS] RP-01-layout: openPaper=2 otherLabel=2 primarySeen=true
+[PASS] RP-09/10-controls: copyName=1 copyIntro=1
+[PASS] RP-02: phoneticHint visible=1
+[INFO_PLAY_PRESENT] RP-02-play: play=1
+[PASS] RP-10: ["林安然","Hi, my Chinese name is 林安然 (Lín Ānrán)."]
+[PASS] RP-09: "Hi, my Chinese name is 林安然 (Lín Ānrán)."
+[INFO] RP-11: [{"y":254,"x":0,"w":390,"cls":"primary-paper"}]
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.innerText: Target page, context or browser has been closed
+    at /workspace/callmeming/ui-playwright-xt11.mjs:160:95 {
+  log: []
+}
+
+Node.js v24.22.1
