@@ -82,8 +82,9 @@ export function Generator({ initialState = "empty", onCustomize }: Props) {
         <div>
           <div className="kicker">A Real Chinese Name</div>
           <h1>
-            Get a real Chinese name you can actually introduce yourself with.
+            Get a real Chinese name you can actually introduce yourself with
           </h1>
+          <p className="definition">CallMeMing gives you a real Chinese name—not a transliteration and not a fortune-telling reading—so you can say who you are in Chinese with confidence.</p>
         </div>
         <div className="controls">
           <div className="style-lab">Name style</div>
@@ -217,7 +218,7 @@ export function Generator({ initialState = "empty", onCustomize }: Props) {
 
       <div className="after-stage">
         <p>
-          Like a direction? Get three complete cards with meaning, audio, and a
+          Like a direction? Get three complete cards with meaning, pronunciation, and a
           self-intro you can say.
         </p>
         <button type="button" className="text-link" onClick={onCustomize}>

@@ -4,7 +4,6 @@ import { useState, type FormEvent } from "react";
 import { postCheckout, redirectToCheckout } from "@/lib/api/checkout";
 import type { DesiredFeeling } from "@/lib/api/types";
 import {
-  DEMO_CUSTOMER,
   FEELING_OPTIONS,
   NAME_STYLE_OPTIONS,
   type NameStyle,
@@ -15,11 +14,9 @@ import {
 } from "@/lib/validation/checkout";
 
 export function CustomizeForm() {
-  const [englishName, setEnglishName] = useState(DEMO_CUSTOMER.englishName);
-  const [style, setStyle] = useState<NameStyle>(DEMO_CUSTOMER.nameStyle);
-  const [feeling, setFeeling] = useState<DesiredFeeling | "">(
-    DEMO_CUSTOMER.feeling,
-  );
+  const [englishName, setEnglishName] = useState("");
+  const [style, setStyle] = useState<NameStyle>("neutral");
+  const [feeling, setFeeling] = useState<DesiredFeeling | "">("");
   const [fieldErrors, setFieldErrors] = useState<{
     englishName?: string;
     desiredFeeling?: string;

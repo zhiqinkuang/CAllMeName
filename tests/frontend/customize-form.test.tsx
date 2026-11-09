@@ -25,11 +25,18 @@ describe("CustomizeForm checkout wiring", () => {
     vi.unstubAllGlobals();
   });
 
+  it("starts empty with Either is fine selected and no feeling", () => {
+    render(<CustomizeForm />);
+    expect(screen.getByPlaceholderText("Your English name")).toHaveValue("");
+    expect(screen.getByRole("button", { name: "Either is fine" })).toHaveClass(
+      "on",
+    );
+    expect(screen.getByRole("button", { name: "Calm" })).not.toHaveClass("on");
+  });
+
   it("does not fetch when english name empty", async () => {
     const user = userEvent.setup();
     render(<CustomizeForm />);
-    const input = screen.getByPlaceholderText("Your English name");
-    await user.clear(input);
     await user.click(
       screen.getByRole("button", { name: /Continue to payment/i }),
     );
@@ -56,7 +63,10 @@ describe("CustomizeForm checkout wiring", () => {
 
     const user = userEvent.setup();
     render(<CustomizeForm />);
-    // Feelings are now contract six — pick Calm (already default; click still OK)
+    await user.type(
+      screen.getByPlaceholderText("Your English name"),
+      "Elena",
+    );
     await user.click(screen.getByRole("button", { name: "Calm" }));
     await user.click(
       screen.getByRole("button", { name: /Continue to payment/i }),
@@ -67,6 +77,7 @@ describe("CustomizeForm checkout wiring", () => {
     );
     expect(body.desiredFeeling).toBe("calm");
     expect(body.englishName).toBe("Elena");
+    expect(body.genderPreference).toBe("neutral");
     await waitFor(() =>
       expect(hrefSetter).toHaveBeenCalledWith("https://checkout.waffo.ai/cs_ok"),
     );

@@ -85,6 +85,31 @@ describe("ResultView F-T7/F-T8", () => {
     await waitFor(() =>
       expect(writeText).toHaveBeenCalledWith("Hi, my Chinese name is 林安然."),
     );
+    expect(screen.getByText(/^Copied$/i)).toBeInTheDocument();
+  });
+
+  it("does not show Copied when clipboard write fails", async () => {
+    const writeText = vi.fn().mockRejectedValue(new Error("denied"));
+    // @ts-expect-error test shim
+    navigator.clipboard = { writeText };
+
+    getResult.mockResolvedValue({
+      ok: true,
+      status: "ready",
+      cards: [card("林安然"), card("苏景行"), card("沈清越")],
+    });
+
+    render(<ResultView token="tok_copy_fail" />);
+    await waitFor(() => expect(screen.getByText("林安然")).toBeInTheDocument());
+
+    fireEvent.click(screen.getByTestId("copy-name"));
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith("林安然"));
+    expect(screen.queryByText(/Copied name/i)).toBeNull();
+    expect(
+      screen.getByText(/Couldn't copy. You can select the text on the card instead./i),
+    ).toBeInTheDocument();
+    expect(screen.getByText("林安然")).toBeInTheDocument();
+    expect(screen.getByText("Hi, my Chinese name is 林安然.")).toBeInTheDocument();
   });
 
   it("Open paper elevates another card to primary", async () => {

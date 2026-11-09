@@ -38,6 +38,7 @@ export function ResultView({
   const [swapKey, setSwapKey] = useState(0);
   const [copiedName, setCopiedName] = useState(false);
   const [copiedIntro, setCopiedIntro] = useState(false);
+  const [copyError, setCopyError] = useState<string | null>(null);
   const [playing, setPlaying] = useState(false);
   const [timedOutHint, setTimedOutHint] = useState(false);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -130,21 +131,30 @@ export function ResultView({
     setSwapKey((k) => k + 1);
     setCopiedName(false);
     setCopiedIntro(false);
+    setCopyError(null);
     setPlaying(false);
   }, [initialPaperIndex]);
 
   async function copyText(text: string, kind: "name" | "intro") {
     try {
+      if (!navigator.clipboard?.writeText) {
+        throw new Error("clipboard unavailable");
+      }
       await navigator.clipboard.writeText(text);
+      setCopyError(null);
+      if (kind === "name") {
+        setCopiedName(true);
+        later(() => setCopiedName(false), COPY_MS);
+      } else {
+        setCopiedIntro(true);
+        later(() => setCopiedIntro(false), COPY_MS);
+      }
     } catch {
-      /* clipboard may be denied */
-    }
-    if (kind === "name") {
-      setCopiedName(true);
-      later(() => setCopiedName(false), COPY_MS);
-    } else {
-      setCopiedIntro(true);
-      later(() => setCopiedIntro(false), COPY_MS);
+      setCopiedName(false);
+      setCopiedIntro(false);
+      setCopyError(
+        "Couldn't copy. You can select the text on the card instead.",
+      );
     }
   }
 
@@ -160,6 +170,7 @@ export function ResultView({
     setSwapKey((k) => k + 1);
     setCopiedName(false);
     setCopiedIntro(false);
+    setCopyError(null);
     setPlaying(false);
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
@@ -278,6 +289,7 @@ export function ResultView({
           swapped={swapKey > 0 && activeIndex !== 0}
           copiedName={copiedName}
           copiedIntro={copiedIntro}
+          copyError={copyError}
           playing={playing}
           onPlay={onPlay}
           onCopyName={() => copyText(primary.hanzi, "name")}
@@ -315,6 +327,7 @@ function PrimaryPaper({
   swapped,
   copiedName,
   copiedIntro,
+  copyError,
   playing,
   onPlay,
   onCopyName,
@@ -324,6 +337,7 @@ function PrimaryPaper({
   swapped: boolean;
   copiedName: boolean;
   copiedIntro: boolean;
+  copyError: string | null;
   playing: boolean;
   onPlay: () => void;
   onCopyName: () => void;
@@ -390,6 +404,11 @@ function PrimaryPaper({
           </button>
         </div>
       </div>
+      {copyError && (
+        <p className="err-msg copy-error" role="status">
+          {copyError}
+        </p>
+      )}
     </article>
   );
 }

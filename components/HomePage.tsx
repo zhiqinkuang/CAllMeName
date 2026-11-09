@@ -40,7 +40,7 @@ export function HomePage({
         <div className="catalog-row">
           <h2 className="lab">Custom · $6.99</h2>
           <p className="body">
-            Meaning, audio, self-intro. Three complete paper cards.
+            Meaning, pronunciation, self-intro. Three complete paper cards.
             <span className="sub">One-time. Taxes may apply at checkout.</span>
           </p>
         </div>
@@ -85,7 +85,7 @@ export function HomePage({
         <div className="faq-item">
           <strong>What do I get for $6.99?</strong>
           <p>
-            Three complete name cards: large hanzi, pinyin, playable audio, why
+            Three complete name cards: large hanzi, pinyin, pronunciation, why
             it suits you, and a copyable self-introduction.
           </p>
         </div>

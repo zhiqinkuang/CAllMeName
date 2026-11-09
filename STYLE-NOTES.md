@@ -58,3 +58,7 @@ Default primary = 林安然. `?paper=jingxing` matches `result-open` / `mobile-r
 3. Force 429 (when API exists) → copy includes “a few names each day”.
 4. Customize: empty English name → client error, no fetch; Calm + Continue → POST checkout then `location.href` to checkoutUrl.
 5. `/results/{token}`: 202 spinner → ready three papers; Open paper; Copy name / Copy intro; Play shows phoneticHint only.
+
+## Workbench
+
+本轮 F-T3–F-T8：工作台为 Grok Bot / 本机（Claude CLI 不可用）。
