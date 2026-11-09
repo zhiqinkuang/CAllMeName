@@ -1,42 +1,76 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
+import { postCheckout, redirectToCheckout } from "@/lib/api/checkout";
+import type { DesiredFeeling } from "@/lib/api/types";
 import {
   DEMO_CUSTOMER,
-  FEELING_CHIPS,
+  FEELING_OPTIONS,
   NAME_STYLE_OPTIONS,
   type NameStyle,
 } from "@/lib/demo-data";
+import {
+  isCheckoutValid,
+  validateCheckoutForm,
+} from "@/lib/validation/checkout";
 
 export function CustomizeForm() {
-  const router = useRouter();
   const [englishName, setEnglishName] = useState(DEMO_CUSTOMER.englishName);
   const [style, setStyle] = useState<NameStyle>(DEMO_CUSTOMER.nameStyle);
-  const [feeling, setFeeling] = useState(DEMO_CUSTOMER.feeling);
-  const [activeChip, setActiveChip] = useState<string>("Calm");
-  const [error, setError] = useState(false);
+  const [feeling, setFeeling] = useState<DesiredFeeling | "">(
+    DEMO_CUSTOMER.feeling,
+  );
+  const [fieldErrors, setFieldErrors] = useState<{
+    englishName?: string;
+    desiredFeeling?: string;
+  }>({});
+  const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  function onChip(chip: string) {
-    setActiveChip(chip);
-    setFeeling(chip.toLowerCase());
-  }
-
-  function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!englishName.trim()) {
-      setError(true);
+    setFormError(null);
+    const errors = validateCheckoutForm({
+      englishName,
+      genderPreference: style,
+      desiredFeeling: feeling,
+    });
+    if (!isCheckoutValid(errors)) {
+      setFieldErrors(errors);
       return;
     }
-    setError(false);
+    if (!feeling) return;
+
+    setFieldErrors({});
     setSubmitting(true);
-    router.push("/results/demo");
+
+    const result = await postCheckout({
+      englishName: englishName.trim(),
+      genderPreference: style,
+      desiredFeeling: feeling,
+    });
+
+    if (!result.ok) {
+      setSubmitting(false);
+      if (result.kind === "validation_error") {
+        setFieldErrors({
+          englishName: result.fields?.englishName,
+          desiredFeeling: result.fields?.desiredFeeling,
+        });
+        setFormError(result.message);
+        return;
+      }
+      setFormError(result.message);
+      return;
+    }
+
+    // Must use location.href — never window.open, never /results/demo.
+    redirectToCheckout(result.checkoutUrl);
   }
 
   return (
     <section className="form-section" id="custom">
-      <form className="form-exhibit" onSubmit={onSubmit} noValidate>
+      <form className="form-exhibit" onSubmit={(e) => void onSubmit(e)} noValidate>
         <h2>Customize your Chinese name</h2>
         <p className="sub">Three complete cards · $6.99 one-time</p>
 
@@ -45,19 +79,21 @@ export function CustomizeForm() {
             English name <span className="req">Required</span>
           </div>
           <input
-            className={`input${error ? " err" : ""}`}
+            className={`input${fieldErrors.englishName ? " err" : ""}`}
             value={englishName}
             onChange={(e) => {
               setEnglishName(e.target.value);
-              if (error && e.target.value.trim()) setError(false);
+              if (fieldErrors.englishName) {
+                setFieldErrors((prev) => ({ ...prev, englishName: undefined }));
+              }
             }}
             placeholder="Your English name"
-            aria-invalid={error}
-            aria-describedby={error ? "en-error" : undefined}
+            aria-invalid={!!fieldErrors.englishName}
+            aria-describedby={fieldErrors.englishName ? "en-error" : undefined}
           />
-          {error && (
+          {fieldErrors.englishName && (
             <div className="err-msg" id="en-error">
-              Please enter your English name.
+              {fieldErrors.englishName}
             </div>
           )}
         </div>
@@ -80,25 +116,32 @@ export function CustomizeForm() {
 
         <div className="field">
           <div className="lab">Feeling you want the name to convey</div>
-          <input
-            className="input"
-            value={feeling}
-            onChange={(e) => setFeeling(e.target.value)}
-            placeholder="calm and clear"
-          />
-          <div className="chips">
-            {FEELING_CHIPS.map((chip) => (
+          <div className="chips" role="group" aria-label="Desired feeling">
+            {FEELING_OPTIONS.map((opt) => (
               <button
-                key={chip}
+                key={opt.value}
                 type="button"
-                className={`chip${activeChip === chip ? " on" : ""}`}
-                onClick={() => onChip(chip)}
+                className={`chip${feeling === opt.value ? " on" : ""}`}
+                onClick={() => {
+                  setFeeling(opt.value);
+                  if (fieldErrors.desiredFeeling) {
+                    setFieldErrors((prev) => ({
+                      ...prev,
+                      desiredFeeling: undefined,
+                    }));
+                  }
+                }}
               >
-                {chip}
+                {opt.label}
               </button>
             ))}
           </div>
+          {fieldErrors.desiredFeeling && (
+            <div className="err-msg">{fieldErrors.desiredFeeling}</div>
+          )}
         </div>
+
+        {formError && <div className="err-msg">{formError}</div>}
 
         <button type="submit" className="stamp cta" disabled={submitting}>
           Continue to payment · $6.99

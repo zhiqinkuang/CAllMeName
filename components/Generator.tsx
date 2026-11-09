@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { postFreeNames } from "@/lib/api/free-names";
+import type { FreeCard } from "@/lib/api/types";
 import {
-  DEMO_FREE_NAMES,
   NAME_STYLE_OPTIONS,
   type GeneratorState,
   type NameStyle,
@@ -14,35 +15,66 @@ type Props = {
 };
 
 export function Generator({ initialState = "empty", onCustomize }: Props) {
-  const [state, setState] = useState<GeneratorState>(initialState);
-  const [style, setStyle] = useState<NameStyle>("feminine");
+  const [state, setState] = useState<GeneratorState>(
+    initialState === "ready" ? "empty" : initialState,
+  );
+  const [style, setStyle] = useState<NameStyle>("neutral");
+  const [cards, setCards] = useState<FreeCard[] | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [justRevealed, setJustRevealed] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const inFlight = useRef(false);
 
+  // Style-QA override: ?generator= can force visual state without API
   useEffect(() => {
-    setState(initialState);
-    setJustRevealed(false);
+    if (initialState === "empty") {
+      setState("empty");
+      setCards(null);
+      setJustRevealed(false);
+    } else if (initialState === "generating") {
+      setState("generating");
+      setCards(null);
+    } else if (initialState === "limit") {
+      setState("limit");
+      setCards(null);
+    } else if (initialState === "ready") {
+      // Keep empty until Generate; do not seed demo names.
+      setState("empty");
+      setCards(null);
+    }
   }, [initialState]);
 
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, []);
-
-  const generate = useCallback(() => {
-    if (state === "generating") return;
+  const generate = useCallback(async () => {
+    if (inFlight.current || state === "generating") return;
+    inFlight.current = true;
     setJustRevealed(false);
+    setErrorMessage(null);
     setState("generating");
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => {
+    setCards(null);
+
+    const result = await postFreeNames(style);
+
+    inFlight.current = false;
+
+    if (result.ok) {
+      setCards(result.cards);
       setState("ready");
       setJustRevealed(true);
-    }, 900);
-  }, [state]);
+      return;
+    }
 
-  const hero = DEMO_FREE_NAMES[0];
-  const support = DEMO_FREE_NAMES.slice(1);
+    if (result.kind === "rate_limited") {
+      setState("limit");
+      setCards(null);
+      return;
+    }
+
+    setState("error");
+    setErrorMessage(result.message);
+    setCards(null);
+  }, [state, style]);
+
+  const hero = cards?.[0];
+  const support = cards?.slice(1) ?? [];
 
   return (
     <>
@@ -71,7 +103,7 @@ export function Generator({ initialState = "empty", onCustomize }: Props) {
             <button
               type="button"
               className="stamp"
-              onClick={generate}
+              onClick={() => void generate()}
               disabled={state === "generating"}
             >
               Generate free names
@@ -94,9 +126,23 @@ export function Generator({ initialState = "empty", onCustomize }: Props) {
             </button>
           </div>
         </section>
+      ) : state === "error" ? (
+        <section className="stage-band limit-mode" aria-label="Name specimens">
+          <div className="limit-box">
+            {errorMessage || "Something went wrong. Please try again."}
+            <br />
+            <button
+              type="button"
+              className="text-link"
+              onClick={() => void generate()}
+            >
+              Try again →
+            </button>
+          </div>
+        </section>
       ) : (
         <section className="stage-band" aria-label="Name specimens">
-          {state === "empty" && (
+          {(state === "empty" || (state === "ready" && !hero)) && (
             <>
               <div className="hero-name">
                 <div className="hero-py" style={{ visibility: "hidden" }}>
@@ -140,11 +186,11 @@ export function Generator({ initialState = "empty", onCustomize }: Props) {
             </>
           )}
 
-          {state === "ready" && (
+          {state === "ready" && hero && (
             <>
               <div className="hero-name">
                 <div className={`hero-py${justRevealed ? " reveal-py" : ""}`}>
-                  {hero.pinyinBracket}
+                  {hero.pinyin}
                 </div>
                 <p className={`hero-hz${justRevealed ? " reveal-hero" : ""}`}>
                   {hero.hanzi}
@@ -155,11 +201,11 @@ export function Generator({ initialState = "empty", onCustomize }: Props) {
                 <div className="support-label">Also generated</div>
                 {support.map((n, i) => (
                   <div
-                    key={n.hanzi}
+                    key={`${n.hanzi}-${i}`}
                     className={`support-item${justRevealed ? ` reveal-sup d${i + 1}` : ""}`}
                   >
                     <div className="support-mob-label">Also</div>
-                    <div className="py">{n.pinyinBracket}</div>
+                    <div className="py">{n.pinyin}</div>
                     <div className="hz">{n.hanzi}</div>
                   </div>
                 ))}

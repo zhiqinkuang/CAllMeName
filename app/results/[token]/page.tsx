@@ -1,5 +1,5 @@
 import { ResultView } from "@/components/ResultView";
-import { parsePaperParam, type PaperId } from "@/lib/demo-data";
+import { parsePaperIndex } from "@/lib/demo-data";
 
 export default async function ResultsPage({
   params,
@@ -8,9 +8,8 @@ export default async function ResultsPage({
   params: Promise<{ token: string }>;
   searchParams: Promise<{ paper?: string }>;
 }) {
-  // Style preview: any token shows Elena demo. No GET /api/results.
-  await params;
+  const { token } = await params;
   const sp = await searchParams;
-  const paper: PaperId = parsePaperParam(sp.paper) ?? "anran";
-  return <ResultView initialPaper={paper} />;
+  const paperIndex = parsePaperIndex(sp.paper) ?? 0;
+  return <ResultView token={token} initialPaperIndex={paperIndex} />;
 }

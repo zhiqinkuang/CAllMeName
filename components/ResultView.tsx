@@ -1,53 +1,143 @@
 "use client";
 
 import { Check, Copy, Volume2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  DEMO_CUSTOMER,
-  DEMO_PAID_NAMES,
-  type PaidName,
-  type PaperId,
-} from "@/lib/demo-data";
+  getResult,
+  RESULTS_POLL_MS,
+  RESULTS_TIMEOUT_MS,
+} from "@/lib/api/results";
+import type { FullCard } from "@/lib/api/types";
 import { Wordmark } from "./Wordmark";
 
 const COPY_MS = 1600;
 const PLAY_MS = 1600;
 
-export function ResultView({ initialPaper = "anran" }: { initialPaper?: PaperId }) {
-  const [activeId, setActiveId] = useState<PaperId>(initialPaper);
+type ViewStatus =
+  | "loading"
+  | "generating"
+  | "ready"
+  | "failed"
+  | "not_found"
+  | "error"
+  | "timeout";
+
+export function ResultView({
+  token,
+  initialPaperIndex = 0,
+}: {
+  token: string;
+  initialPaperIndex?: number;
+}) {
+  const [status, setStatus] = useState<ViewStatus>("loading");
+  const [cards, setCards] = useState<FullCard[] | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [activeIndex, setActiveIndex] = useState(
+    Math.min(Math.max(initialPaperIndex, 0), 2),
+  );
   const [swapKey, setSwapKey] = useState(0);
   const [copiedName, setCopiedName] = useState(false);
   const [copiedIntro, setCopiedIntro] = useState(false);
   const [playing, setPlaying] = useState(false);
+  const [timedOutHint, setTimedOutHint] = useState(false);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
-
-  useEffect(() => {
-    setActiveId(initialPaper);
-    setSwapKey((k) => k + 1);
-    setCopiedName(false);
-    setCopiedIntro(false);
-    setPlaying(false);
-  }, [initialPaper]);
-
-  useEffect(() => {
-    const bag = timers.current;
-    return () => bag.forEach(clearTimeout);
-  }, []);
+  const pollTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const startedAt = useRef<number>(Date.now());
+  const cancelled = useRef(false);
 
   function later(fn: () => void, ms: number) {
     const t = setTimeout(fn, ms);
     timers.current.push(t);
   }
 
-  const primary = DEMO_PAID_NAMES.find((n) => n.id === activeId)!;
-  const others = DEMO_PAID_NAMES.filter((n) => n.id !== activeId);
-  const showStateTag = activeId !== "anran";
+  const clearPoll = useCallback(() => {
+    if (pollTimer.current) {
+      clearTimeout(pollTimer.current);
+      pollTimer.current = null;
+    }
+  }, []);
+
+  const applyReady = useCallback(
+    (next: FullCard[]) => {
+      setCards(next);
+      setStatus("ready");
+      setMessage(null);
+      setTimedOutHint(false);
+      const idx = Math.min(Math.max(initialPaperIndex, 0), next.length - 1);
+      setActiveIndex(idx);
+    },
+    [initialPaperIndex],
+  );
+
+  const poll = useCallback(async () => {
+    if (cancelled.current) return;
+    const result = await getResult(token);
+    if (cancelled.current) return;
+
+    if (result.ok && result.status === "ready") {
+      clearPoll();
+      applyReady(result.cards);
+      return;
+    }
+
+    if (result.ok && result.status === "generating") {
+      setStatus("generating");
+      const elapsed = Date.now() - startedAt.current;
+      if (elapsed >= RESULTS_TIMEOUT_MS) {
+        setTimedOutHint(true);
+      }
+      clearPoll();
+      pollTimer.current = setTimeout(() => {
+        void poll();
+      }, RESULTS_POLL_MS);
+      return;
+    }
+
+    clearPoll();
+    if (!result.ok && result.status === "failed") {
+      setStatus("failed");
+      setMessage(result.message);
+      return;
+    }
+    if (!result.ok && result.status === "not_found") {
+      setStatus("not_found");
+      setMessage(result.message);
+      return;
+    }
+    setStatus("error");
+    setMessage(
+      !result.ok ? result.message : "Something went wrong. Please try again.",
+    );
+  }, [token, clearPoll, applyReady]);
+
+  useEffect(() => {
+    cancelled.current = false;
+    startedAt.current = Date.now();
+    setStatus("loading");
+    setCards(null);
+    setTimedOutHint(false);
+    void poll();
+    return () => {
+      cancelled.current = true;
+      clearPoll();
+      timers.current.forEach(clearTimeout);
+      timers.current = [];
+    };
+  }, [token, poll, clearPoll]);
+
+  useEffect(() => {
+    setActiveIndex(Math.min(Math.max(initialPaperIndex, 0), 2));
+    setSwapKey((k) => k + 1);
+    setCopiedName(false);
+    setCopiedIntro(false);
+    setPlaying(false);
+  }, [initialPaperIndex]);
 
   async function copyText(text: string, kind: "name" | "intro") {
     try {
       await navigator.clipboard.writeText(text);
     } catch {
-      /* style preview */
+      /* clipboard may be denied */
     }
     if (kind === "name") {
       setCopiedName(true);
@@ -59,25 +149,105 @@ export function ResultView({ initialPaper = "anran" }: { initialPaper?: PaperId 
   }
 
   function onPlay() {
-    // audioUrl is always null this round — visual Playing… only.
+    // audioUrl is always null this MVP round — visual Playing… only.
     setPlaying(true);
     later(() => setPlaying(false), PLAY_MS);
   }
 
-  function openPaper(id: PaperId) {
-    if (id === activeId) return;
-    setActiveId(id);
+  function openPaper(index: number) {
+    if (index === activeIndex || !cards) return;
+    setActiveIndex(index);
     setSwapKey((k) => k + 1);
     setCopiedName(false);
     setCopiedIntro(false);
     setPlaying(false);
-    // Update URL for QA without navigation lock
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
-      url.searchParams.set("paper", id);
+      url.searchParams.set("paper", String(index));
       window.history.replaceState({}, "", url.toString());
     }
   }
+
+  if (status === "loading" || status === "generating") {
+    return (
+      <div className="page-shell">
+        <div className="result-wrap">
+          <div className="result-top">
+            <Wordmark />
+            <span className="result-badge">Preparing your names</span>
+          </div>
+          <div className="result-head">
+            <h1>We are preparing your Chinese names</h1>
+            <p className="result-lead">
+              This usually takes a moment. Keep this page open—we will show your
+              three complete cards as soon as they are ready.
+            </p>
+            {timedOutHint && (
+              <p className="result-lead" style={{ marginTop: 12 }}>
+                Still working. Check the email you used at checkout if this page
+                stays blank—we also send the result link there.
+              </p>
+            )}
+          </div>
+          <div className="limit-box" aria-live="polite">
+            Writing your name cards…
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === "failed" || status === "not_found" || status === "error") {
+    const title =
+      status === "not_found"
+        ? "This result link is not available"
+        : status === "failed"
+          ? "We could not prepare your names"
+          : "Something went wrong";
+    return (
+      <div className="page-shell">
+        <div className="result-wrap">
+          <div className="result-top">
+            <Wordmark />
+            <span className="result-badge">Results</span>
+          </div>
+          <div className="result-head">
+            <h1>{title}</h1>
+            <p className="result-lead">
+              {message ||
+                (status === "not_found"
+                  ? "This result link is invalid."
+                  : "Please try again or contact support with your payment email.")}
+            </p>
+          </div>
+          {status !== "not_found" && (
+            <button
+              type="button"
+              className="stamp"
+              onClick={() => {
+                startedAt.current = Date.now();
+                setTimedOutHint(false);
+                setStatus("loading");
+                void poll();
+              }}
+            >
+              Try again
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (!cards || cards.length !== 3) {
+    return null;
+  }
+
+  const primary = cards[activeIndex];
+  const others = cards
+    .map((c, i) => ({ card: c, index: i }))
+    .filter((x) => x.index !== activeIndex);
+  const showStateTag = activeIndex !== 0;
 
   return (
     <div className="page-shell">
@@ -93,44 +263,39 @@ export function ResultView({ initialPaper = "anran" }: { initialPaper?: PaperId 
               State · Open paper → {primary.hanzi}
             </span>
           )}
-          <h1>
-            {DEMO_CUSTOMER.englishName}, here are three names you can take with
-            you
-          </h1>
+          <h1>Here are three names you can take with you</h1>
           <p className="result-lead">
             Three complete name cards. One primary paper shows Play, Copy name,
-            Why this suits you, a bilingual self-intro, and Copy intro. Open
-            paper on Other candidates elevates that name to the primary
-            paper—every name has the full set when it is primary.
+            Why this suits you, a self-intro, and Copy intro. Open paper on
+            Other candidates elevates that name to the primary paper—every name
+            has the full set when it is primary.
           </p>
         </div>
 
         <PrimaryPaper
           key={swapKey}
           name={primary}
-          swapped={swapKey > 0 && activeId !== "anran"}
+          swapped={swapKey > 0 && activeIndex !== 0}
           copiedName={copiedName}
           copiedIntro={copiedIntro}
           playing={playing}
           onPlay={onPlay}
           onCopyName={() => copyText(primary.hanzi, "name")}
-          onCopyIntro={() => copyText(primary.introZh, "intro")}
+          onCopyIntro={() => copyText(primary.selfIntroduction, "intro")}
         />
 
         <p className="alt-label">Other candidates</p>
-        {others.map((n) => (
-          <div className="alt-row" key={n.id}>
+        {others.map(({ card, index }) => (
+          <div className="alt-row" key={`${card.hanzi}-${index}`}>
             <div>
-              <div className="hz">{n.hanzi}</div>
-              <div className="py">
-                {n.pinyinBracket} · {n.pinyinRoman}
-              </div>
+              <div className="hz">{card.hanzi}</div>
+              <div className="py">{card.pinyin}</div>
             </div>
-            <p className="blurb">{n.blurb}</p>
+            <p className="blurb">{card.whyItFitsYou}</p>
             <button
               type="button"
               className="pick"
-              onClick={() => openPaper(n.id)}
+              onClick={() => openPaper(index)}
             >
               Open paper →
             </button>
@@ -155,7 +320,7 @@ function PrimaryPaper({
   onCopyName,
   onCopyIntro,
 }: {
-  name: PaidName;
+  name: FullCard;
   swapped: boolean;
   copiedName: boolean;
   copiedIntro: boolean;
@@ -167,9 +332,9 @@ function PrimaryPaper({
   return (
     <article className={`primary-paper${swapped ? " swap-in" : ""}`}>
       <div className="pp-left">
-        <div className="py">{name.pinyinBracket}</div>
+        <div className="py">[{name.pinyin}]</div>
         <div className="hz">{name.hanzi}</div>
-        <div className="roman">{name.pinyinRoman}</div>
+        <div className="roman">{name.phoneticHint}</div>
         <div className="acts">
           <button
             type="button"
@@ -183,6 +348,7 @@ function PrimaryPaper({
           <button
             type="button"
             className={`chip${copiedName ? " done" : ""}`}
+            data-testid="copy-name"
             onClick={onCopyName}
           >
             {copiedName ? (
@@ -202,14 +368,14 @@ function PrimaryPaper({
       </div>
       <div className="pp-right">
         <div className="why-h">Why this suits you</div>
-        <p className="why-b">{name.why}</p>
+        <p className="why-b">{name.whyItFitsYou}</p>
         <div className="intro-block">
           <div className="intro-h">Say it like this</div>
-          <p className="intro-zh">{name.introZh}</p>
-          <p className="intro-en">{name.introEn}</p>
+          <p className="intro-en">{name.selfIntroduction}</p>
           <button
             type="button"
             className={`chip${copiedIntro ? " done" : ""}`}
+            data-testid="copy-intro"
             onClick={onCopyIntro}
           >
             {copiedIntro ? (

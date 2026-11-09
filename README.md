@@ -1,64 +1,72 @@
-# CallMeMing — style preview (frontend)
+# CallMeMing — frontend (exhibit baseline + F-T3–F-T8 clients)
 
-Visual / presentation layer for CallMeMing. **Not** a production business implementation.
+Visual layer on **`/workspace/callmeming-ui/exhibit/`**, wired to OpenSpec API contract **v1.1** (`/workspace/openspec/callmeming-mvp/api-contract.md`).
 
-## Design baseline (confirmed)
+## Design baseline
 
-**Development visual source of truth:** `/workspace/callmeming-ui/exhibit/` (展厅标本).
-
-- Design notes: `exhibit/CallMeMing-展厅标本-设计说明.md`
-- Motion: `exhibit/CallMeMing-展厅标本-关键动效说明.md`
-- Previews: `exhibit/previews/`
-
-Root-directory MVP files (`/workspace/callmeming-ui/CallMeMing-*.pen`, `previews/`, `CallMeMing-设计说明.md`, etc.) are **archived only** — do not implement against them.
+**Visual source of truth:** `/workspace/callmeming-ui/exhibit/`. Root MVP pen/previews are archive only.
 
 ## Workspace
 
 - Project: `/workspace/callmeming`
-- Local box workspace (Cursor / Grok Bot). No GitHub/Origin push from this task.
+- Local box only for this task. No GitHub/Origin push required from F-T3–F-T8.
 
 ## Stack
 
 - Next.js 15 (App Router) + TypeScript
-- Custom CSS from `exhibit/previews/_tokens.css` (no Tailwind / shadcn)
+- Custom CSS from exhibit tokens (no Tailwind / shadcn)
 - Lucide icons
-- Local mock data (Elena · 林安然 / 苏景行 / 沈清越)
+- Client modules: `lib/api/{free-names,checkout,results,types}.ts`, `lib/validation/checkout.ts`
+- Vitest + Testing Library (`npm test`)
 
 ## Run
 
 ```bash
 cd /workspace/callmeming
-npm install
+npm install --legacy-peer-deps
+npm test
 npm run build
 npx next start -p 3010
 ```
 
-If native SWC bus-errors in this environment, keep `@next/swc-wasm-nodejs` and leave `@next/swc-linux-x64-gnu` renamed/disabled.
+If native SWC bus-errors, keep `@next/swc-wasm-nodejs`.
 
 ## Pages
 
 | Route | What |
 |-------|------|
-| `/` | Hero → generator (one state) → Free vs Custom → exhibit form → How it works → FAQ×3 → Footer |
-| `/results/[token]` | One primary paper + Other candidates. Any token shows Elena demo. |
+| `/` | Hero → Generator (`POST /api/names/free`) → Free vs Custom → Customize (`POST /api/checkout` → `location.href`) → How it works → FAQ×3 → Footer |
+| `/results/[token]` | `GET /api/results/:token`; poll 202 every 2s; ready / failed / not_found |
+
+### Name style (v1.1)
+
+- Default **Either is fine** → body `{ "genderPreference": "neutral" }` (UI always sends the enum; does not rely on empty `{}`)
+- Typically feminine / Typically masculine → `feminine` / `masculine`
+- 429 UI copy: “a few names each day” only
+
+### Feeling chips
+
+Contract six only: Friendly / Calm / Bright / Elegant / Modern / Scholarly.
+
+### Results interactions
+
+- Copy name = `hanzi` only; Copy intro = `selfIntroduction`
+- Play = visual Playing… + `phoneticHint` (`audioUrl` null this MVP)
+- Open paper → elevates that card to primary (`?paper=0|1|2`)
 
 ### QA query params
 
-- Homepage: `/?generator=empty|generating|ready|limit` (default `empty`)
-- Results: `/results/demo?paper=anran|jingxing|qingyue` (default `anran`)
+- Homepage: `/?generator=empty|generating|limit` (forces visual state; ready is not seeded with demo names)
+- Results: `/results/{token}?paper=0|1|2` (legacy `anran|jingxing|qingyue` aliases still parse)
 
-### Mock interactions
+## Tests
 
-- Generate → generating → ready stage (no `POST /api/names/free`)
-- Continue to payment → validates English name → `/results/demo` (no Waffo)
-- Open paper → elevates that name to the only primary paper
-- Copy name = hanzi only; Copy intro = Chinese self-intro; Copied ~1.6s
-- Play = visual `Playing…` only (`audioUrl` always null this round)
+`tests/frontend/*` cover F-T3–F-T8 clients and Generator / CustomizeForm / ResultView wiring (27 tests).
 
 ## Style QA
 
-See `/workspace/callmeming/style-qa/` (`exhibit-*.png`) and `STYLE-NOTES.md`.
+See `style-qa/` and `STYLE-NOTES.md` (includes API vs exhibit diffs).
 
-## Out of scope
+## Scope note
 
-Real APIs, webhooks, Waffo, auth walls, static card export, numerology.
+This F-T3–F-T8 pass implements **frontend clients + UI wiring**. Empty `app/api/**` placeholders may be filled by a parallel backend agent on the shared box; this frontend task did not author Route Handlers.

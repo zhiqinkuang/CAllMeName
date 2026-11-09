@@ -36,3 +36,25 @@ No `#F4EFE6` page fill, no `#3F6F5B` solid rounded primary buttons, no silk floa
 ## Open paper
 
 Default primary = 林安然. `?paper=jingxing` matches `result-open` / `mobile-result-open`. Clicking Open paper swaps primary; all three names carry full Play / Copy name / Why / intro / Copy intro when primary.
+
+## API wiring (F-T3–F-T8) — vs exhibit / demo archive
+
+| Area | Exhibit / prior demo | Live client (this tree) |
+|------|----------------------|-------------------------|
+| Free Generate body | n/a (static) | Always `{ genderPreference }` — default **neutral** (Either is fine); feminine / masculine when selected. Never empty `{}` from UI. |
+| Free 429 copy | — | “a few names each day” only; no hourly/daily counts on screen |
+| Feeling chips | Warm / Nature / Strong / Gentle etc. in some artboards | Contract six only: Friendly / Calm / Bright / Elegant / Modern / Scholarly |
+| Checkout redirect | demo `/results/demo` | `window.location.href = checkoutUrl` only; never `window.open` |
+| Results data | DEMO_PAID_NAMES Elena fixture | `GET /api/results/:token`; poll 202 every 2s; ~60s email hint; failed stops; 404 no cards |
+| FullCard fields | introZh + introEn split in demo | Contract: `selfIntroduction` (EN) for Copy intro; Copy name = `hanzi` only; Play visual-only (`audioUrl` null) |
+| Open paper | `?paper=anran\|jingxing\|qingyue` | `?paper=0\|1\|2` (legacy aliases still parse for QA) |
+
+**Not in this pass:** no `app/api/**/route.ts` Route Handlers written (dirs remain empty placeholders). Backend server modules under `lib/server` are out of F-T3–F-T8 scope.
+
+## Manual verify checklist
+
+1. Home: Either is fine selected → Generate → network POST body `{"genderPreference":"neutral"}`.
+2. Switch Typically feminine / Typically masculine → body `feminine` / `masculine`.
+3. Force 429 (when API exists) → copy includes “a few names each day”.
+4. Customize: empty English name → client error, no fetch; Calm + Continue → POST checkout then `location.href` to checkoutUrl.
+5. `/results/{token}`: 202 spinner → ready three papers; Open paper; Copy name / Copy intro; Play shows phoneticHint only.
