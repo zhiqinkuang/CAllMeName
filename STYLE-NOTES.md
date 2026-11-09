@@ -59,6 +59,19 @@ Default primary = 林安然. `?paper=jingxing` matches `result-open` / `mobile-r
 4. Customize: empty English name → client error, no fetch; Calm + Continue → POST checkout then `location.href` to checkoutUrl.
 5. `/results/{token}`: 202 spinner → ready three papers; Open paper; Copy name / Copy intro; Play shows phoneticHint only.
 
+## Motion polish (exhibit 交互动效说明)
+
+Aligned locally to `exhibit/CallMeMing-展厅标本-交互动效说明.md`:
+
+- §1 reveal-hero end state `translateY(0)`; limit/error `fade-in-240`
+- §3 Play icon idle=`play`, playing=`volume-2`
+- §4 / §6 chip & feeling short color/border transitions; form err-msg `err-slide` 180ms
+- §5 Open paper: old `paper-out` 240ms + new `swap-in` 360ms @80ms delay; interruptible
+- §7 result-head fade 280ms; primary `paper-in` 480ms; Other candidates delay 120ms
+- §8 prefers-reduced-motion: CSS near-zero + skip reveal stagger / Open paper slip
+- §2 no SVG outline → keep fade+rise/blur (no fake stroke)
+
 ## Workbench
 
 本轮 F-T3–F-T8：工作台为 Grok Bot / 本机（Claude CLI 不可用）。
+本轮动效 polish：工作台为 Grok Bot / 本机（Claude CLI 不可用）。

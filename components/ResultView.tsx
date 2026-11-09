@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Copy, Volume2 } from "lucide-react";
+import { Check, Copy, Play, Volume2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   getResult,
@@ -12,6 +12,14 @@ import { Wordmark } from "./Wordmark";
 
 const COPY_MS = 1600;
 const PLAY_MS = 1600;
+const PAPER_EXIT_MS = 240;
+
+function prefersReducedMotion(): boolean {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+    return false;
+  }
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
 
 type ViewStatus =
   | "loading"
@@ -36,6 +44,9 @@ export function ResultView({
     Math.min(Math.max(initialPaperIndex, 0), 2),
   );
   const [swapKey, setSwapKey] = useState(0);
+  const [useSwapIn, setUseSwapIn] = useState(false);
+  const [exitingPaper, setExitingPaper] = useState<FullCard | null>(null);
+  const exitTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [copiedName, setCopiedName] = useState(false);
   const [copiedIntro, setCopiedIntro] = useState(false);
   const [copyError, setCopyError] = useState<string | null>(null);
@@ -123,11 +134,17 @@ export function ResultView({
       clearPoll();
       timers.current.forEach(clearTimeout);
       timers.current = [];
+      if (exitTimer.current) {
+        clearTimeout(exitTimer.current);
+        exitTimer.current = null;
+      }
     };
   }, [token, poll, clearPoll]);
 
   useEffect(() => {
     setActiveIndex(Math.min(Math.max(initialPaperIndex, 0), 2));
+    setUseSwapIn(false);
+    setExitingPaper(null);
     setSwapKey((k) => k + 1);
     setCopiedName(false);
     setCopiedIntro(false);
@@ -166,12 +183,35 @@ export function ResultView({
 
   function openPaper(index: number) {
     if (index === activeIndex || !cards) return;
-    setActiveIndex(index);
-    setSwapKey((k) => k + 1);
+
+    // Interrupt any in-flight Open paper exit.
+    if (exitTimer.current) {
+      clearTimeout(exitTimer.current);
+      exitTimer.current = null;
+    }
+
+    const previous = cards[activeIndex];
     setCopiedName(false);
     setCopiedIntro(false);
     setCopyError(null);
     setPlaying(false);
+
+    if (prefersReducedMotion()) {
+      setExitingPaper(null);
+      setUseSwapIn(false);
+      setActiveIndex(index);
+      setSwapKey((k) => k + 1);
+    } else {
+      setExitingPaper(previous);
+      setUseSwapIn(true);
+      setActiveIndex(index);
+      setSwapKey((k) => k + 1);
+      exitTimer.current = setTimeout(() => {
+        setExitingPaper(null);
+        exitTimer.current = null;
+      }, PAPER_EXIT_MS);
+    }
+
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
       url.searchParams.set("paper", String(index));
@@ -283,18 +323,35 @@ export function ResultView({
           </p>
         </div>
 
-        <PrimaryPaper
-          key={swapKey}
-          name={primary}
-          swapped={swapKey > 0 && activeIndex !== 0}
-          copiedName={copiedName}
-          copiedIntro={copiedIntro}
-          copyError={copyError}
-          playing={playing}
-          onPlay={onPlay}
-          onCopyName={() => copyText(primary.hanzi, "name")}
-          onCopyIntro={() => copyText(primary.selfIntroduction, "intro")}
-        />
+        <div className="paper-stage">
+          {exitingPaper && (
+            <PrimaryPaper
+              name={exitingPaper}
+              swapped={false}
+              exiting
+              copiedName={false}
+              copiedIntro={false}
+              copyError={null}
+              playing={false}
+              onPlay={() => {}}
+              onCopyName={() => {}}
+              onCopyIntro={() => {}}
+            />
+          )}
+          <PrimaryPaper
+            key={swapKey}
+            name={primary}
+            swapped={useSwapIn}
+            exiting={false}
+            copiedName={copiedName}
+            copiedIntro={copiedIntro}
+            copyError={copyError}
+            playing={playing}
+            onPlay={onPlay}
+            onCopyName={() => copyText(primary.hanzi, "name")}
+            onCopyIntro={() => copyText(primary.selfIntroduction, "intro")}
+          />
+        </div>
 
         <p className="alt-label">Other candidates</p>
         {others.map(({ card, index }) => (
@@ -325,6 +382,7 @@ export function ResultView({
 function PrimaryPaper({
   name,
   swapped,
+  exiting = false,
   copiedName,
   copiedIntro,
   copyError,
@@ -335,6 +393,7 @@ function PrimaryPaper({
 }: {
   name: FullCard;
   swapped: boolean;
+  exiting?: boolean;
   copiedName: boolean;
   copiedIntro: boolean;
   copyError: string | null;
@@ -343,8 +402,13 @@ function PrimaryPaper({
   onCopyName: () => void;
   onCopyIntro: () => void;
 }) {
+  const paperClass = exiting
+    ? "primary-paper paper-out"
+    : swapped
+      ? "primary-paper swap-in"
+      : "primary-paper";
   return (
-    <article className={`primary-paper${swapped ? " swap-in" : ""}`}>
+    <article className={paperClass} aria-hidden={exiting || undefined}>
       <div className="pp-left">
         <div className="py">[{name.pinyin}]</div>
         <div className="hz">{name.hanzi}</div>
@@ -355,8 +419,13 @@ function PrimaryPaper({
             className={`chip play${playing ? " playing" : ""}`}
             onClick={onPlay}
             aria-pressed={playing}
+            tabIndex={exiting ? -1 : undefined}
           >
-            <Volume2 size={14} strokeWidth={2} aria-hidden />
+            {playing ? (
+              <Volume2 size={14} strokeWidth={2} aria-hidden />
+            ) : (
+              <Play size={14} strokeWidth={2} aria-hidden />
+            )}
             {playing ? "Playing…" : "Play"}
           </button>
           <button

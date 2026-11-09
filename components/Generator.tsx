@@ -9,6 +9,13 @@ import {
   type NameStyle,
 } from "@/lib/demo-data";
 
+function prefersReducedMotion(): boolean {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+    return false;
+  }
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
 type Props = {
   initialState?: GeneratorState;
   onCustomize: () => void;
@@ -58,7 +65,7 @@ export function Generator({ initialState = "empty", onCustomize }: Props) {
     if (result.ok) {
       setCards(result.cards);
       setState("ready");
-      setJustRevealed(true);
+      setJustRevealed(!prefersReducedMotion());
       return;
     }
 
@@ -118,7 +125,7 @@ export function Generator({ initialState = "empty", onCustomize }: Props) {
 
       {state === "limit" ? (
         <section className="stage-band limit-mode" aria-label="Name specimens">
-          <div className="limit-box">
+          <div className="limit-box fade-in-240">
             You can generate a few names each day. Come back tomorrow, or
             customize three complete cards for $6.99.
             <br />
@@ -129,7 +136,7 @@ export function Generator({ initialState = "empty", onCustomize }: Props) {
         </section>
       ) : state === "error" ? (
         <section className="stage-band limit-mode" aria-label="Name specimens">
-          <div className="limit-box">
+          <div className="limit-box fade-in-240">
             {errorMessage || "Something went wrong. Please try again."}
             <br />
             <button
