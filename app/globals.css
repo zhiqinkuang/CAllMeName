@@ -10,9 +10,9 @@
   --edge: #D6CFC2;
   --danger: #A63D2F;
   --wash: #efece6;
-  --serif: "Newsreader", "Source Serif 4", Georgia, serif;
-  --sans: "Source Sans 3", "Noto Sans", system-ui, sans-serif;
-  --han: "Noto Serif SC", "Source Han Serif SC", "Songti SC", serif;
+  --serif: var(--font-serif, "Newsreader"), "Source Serif 4", Georgia, serif;
+  --sans: var(--font-sans, "Source Sans 3"), "Noto Sans", system-ui, sans-serif;
+  --han: var(--font-han, "Noto Serif SC"), "Source Han Serif SC", "Songti SC", serif;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
