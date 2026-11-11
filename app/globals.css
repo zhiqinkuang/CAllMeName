@@ -236,11 +236,27 @@ a:link, a:visited { color: inherit; text-decoration: none; }
 
 .site-footer {
   display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 16px 32px;
   padding: 32px 64px 40px; font-size: 13px; color: var(--muted);
+  border-top: 1px solid var(--hairline);
+}
+.site-footer .footer-marks {
+  display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: baseline;
 }
 .site-footer .brand {
   font-family: var(--serif); color: var(--ink); font-weight: 600; font-size: 14px;
 }
+.site-footer .footer-legal {
+  display: flex; flex-wrap: wrap; gap: 4px 4px; align-items: center;
+}
+.site-footer .footer-legal a {
+  color: var(--ink); font-weight: 600;
+  text-decoration: underline; text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  min-height: 44px; padding: 10px 12px;
+  display: inline-flex; align-items: center;
+}
+.site-footer .footer-legal a:hover { color: var(--celadon); }
 
 /* Form — exhibit */
 .form-section {
@@ -303,6 +319,15 @@ a:link, a:visited { color: inherit; text-decoration: none; }
 .form-exhibit .tax {
   text-align: center; color: var(--muted); font-size: 12px; margin-top: 10px;
 }
+.form-exhibit .checkout-legal {
+  text-align: center; color: var(--muted); font-size: 12px;
+  margin: 12px 0 0; line-height: 1.5;
+}
+.form-exhibit .checkout-legal a {
+  color: var(--ink); font-weight: 600;
+  text-decoration: underline; text-underline-offset: 2px;
+}
+.form-exhibit .checkout-legal a:hover { color: var(--celadon); }
 
 /* Result */
 .result-wrap { padding: 28px 64px 56px; }
@@ -440,6 +465,49 @@ a:link, a:visited { color: inherit; text-decoration: none; }
 .alt-row .pick:hover { color: var(--celadon); }
 .result-help { margin-top: 28px; color: var(--muted); font-size: 13px; }
 
+
+/* Legal pages */
+.legal-main { padding: 48px 64px 24px; }
+.legal-page { max-width: 720px; margin: 0 auto; }
+.legal-page header { margin-bottom: 28px; }
+.legal-page h1 {
+  font-family: var(--serif); font-size: 36px; font-weight: 600;
+  letter-spacing: -0.5px; line-height: 1.15; margin: 0 0 10px;
+}
+.legal-page .legal-updated {
+  margin: 0; color: var(--muted); font-size: 14px;
+}
+.legal-page .legal-disclaimer {
+  margin: 20px 0 0; padding: 14px 16px;
+  background: var(--wash); border-left: 3px solid var(--celadon);
+  color: var(--muted); font-size: 13px; line-height: 1.55;
+}
+.legal-page h2 {
+  font-family: var(--serif); font-size: 22px; font-weight: 600;
+  letter-spacing: -0.3px; margin: 36px 0 12px; line-height: 1.25;
+}
+.legal-page p, .legal-page li {
+  font-size: 15px; line-height: 1.65; color: var(--ink);
+}
+.legal-page p { margin: 0 0 12px; }
+.legal-page ul, .legal-page ol { margin: 0 0 12px; padding-left: 22px; }
+.legal-page li { margin-bottom: 6px; }
+.legal-page a {
+  color: var(--celadon); font-weight: 600;
+  text-decoration: underline; text-underline-offset: 2px;
+}
+.legal-page a:hover { color: var(--ink); }
+.legal-page table {
+  width: 100%; border-collapse: collapse;
+  margin: 8px 0 20px; font-size: 14px; line-height: 1.5;
+}
+.legal-page th, .legal-page td {
+  text-align: left; vertical-align: top;
+  padding: 10px 12px; border: 1px solid var(--hairline);
+}
+.legal-page th { font-weight: 600; background: var(--wash); width: 36%; }
+.legal-page .legal-contact p { margin-bottom: 4px; }
+
 @media (max-width: 720px) {
   .site-nav { padding: 14px 20px; }
   .mark { font-size: 18px; }
@@ -496,6 +564,11 @@ a:link, a:visited { color: inherit; text-decoration: none; }
   .site-footer {
     padding: 24px 20px 32px; flex-direction: column; gap: 8px; align-items: flex-start;
   }
+  .site-footer .footer-legal { margin-left: -12px; }
+
+  .legal-main { padding: 32px 20px 16px; }
+  .legal-page h1 { font-size: 28px; }
+  .legal-page h2 { font-size: 20px; }
 
   .form-section { padding: 32px 20px 16px; }
   .form-exhibit h2 { font-size: 24px; }

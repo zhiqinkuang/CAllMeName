@@ -3,6 +3,7 @@
 import { type GeneratorState } from "@/lib/demo-data";
 import { CustomizeForm } from "./CustomizeForm";
 import { Generator } from "./Generator";
+import { SiteFooter } from "./SiteFooter";
 import { Wordmark } from "./Wordmark";
 
 export function HomePage({
@@ -98,11 +99,7 @@ export function HomePage({
         </div>
       </section>
 
-      <footer className="site-footer">
-        <span className="brand">CallMeMing</span>
-        <span>callmeming.com</span>
-        <span>A Real Chinese Name</span>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

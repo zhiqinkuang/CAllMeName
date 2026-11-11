@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import { postCheckout, redirectToCheckout } from "@/lib/api/checkout";
 import type { DesiredFeeling } from "@/lib/api/types";
 import {
@@ -144,6 +145,11 @@ export function CustomizeForm() {
           Continue to payment · $6.99
         </button>
         <p className="tax">One-time. Taxes may apply at checkout.</p>
+        <p className="checkout-legal">
+          By continuing, you agree to the{" "}
+          <Link href="/terms">Terms of Service</Link> and{" "}
+          <Link href="/privacy">Privacy Policy</Link>.
+        </p>
       </form>
     </section>
   );

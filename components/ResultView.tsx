@@ -8,6 +8,7 @@ import {
   RESULTS_TIMEOUT_MS,
 } from "@/lib/api/results";
 import type { FullCard } from "@/lib/api/types";
+import { SiteFooter } from "./SiteFooter";
 import { Wordmark } from "./Wordmark";
 
 const COPY_MS = 1600;
@@ -244,6 +245,7 @@ export function ResultView({
             Writing your name cards…
           </div>
         </div>
+        <SiteFooter />
       </div>
     );
   }
@@ -286,6 +288,7 @@ export function ResultView({
             </button>
           )}
         </div>
+        <SiteFooter />
       </div>
     );
   }
@@ -375,6 +378,7 @@ export function ResultView({
           Pick one to take with you. CallMeMing does not sell destiny readings.
         </p>
       </div>
+      <SiteFooter />
     </div>
   );
 }
