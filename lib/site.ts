@@ -16,6 +16,12 @@ export const SITE_NAME = "CallMeMing";
 
 export const SUPPORT_EMAIL = "zhiqinkuang@gmail.com";
 
+export const LEGAL_NAME = "况志勤";
+
+export const REGISTERED_ADDRESS = "上海市徐汇区梅陇路130号";
+
+export const GOVERNING_LAW = "中华人民共和国法律";
+
 export const SITE_TITLE =
   "CallMeMing — Real Chinese Name Generator for Learners";
 

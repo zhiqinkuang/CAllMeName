@@ -6,12 +6,19 @@ import { CustomizeForm } from "@/components/CustomizeForm";
 import { SiteFooter } from "@/components/SiteFooter";
 import PrivacyPage from "@/app/privacy/page";
 import TermsPage from "@/app/terms/page";
-import { SUPPORT_EMAIL } from "@/lib/site";
+import {
+  GOVERNING_LAW,
+  LEGAL_NAME,
+  REGISTERED_ADDRESS,
+  SUPPORT_EMAIL,
+} from "@/lib/site";
 
-const REMAINING_PLACEHOLDERS = [
+const REMOVED_PLACEHOLDERS = [
   "[Legal name — to be provided]",
   "[Registered address — to be provided]",
   "[Governing law / country or region — to be provided]",
+  "[Support email — to be provided]",
+  "to be provided",
 ];
 
 function expectSupportContact(container: HTMLElement, minCount = 1) {
@@ -58,7 +65,7 @@ describe("SiteFooter and checkout legal links", () => {
 });
 
 describe("Terms of Service and Privacy Policy pages", () => {
-  it("renders Waffo review terms: processor, one-time price, and placeholders", () => {
+  it("renders Waffo review terms: processor, one-time price, and operator identity", () => {
     const { container } = render(<TermsPage />);
     const text = container.textContent ?? "";
 
@@ -71,16 +78,23 @@ describe("Terms of Service and Privacy Policy pages", () => {
     expect(text).toMatch(
       /does not pass through or get stored on CallMeMing servers/i,
     );
-    for (const placeholder of REMAINING_PLACEHOLDERS) {
-      expect(text).toContain(placeholder);
+    expect(text).toContain(LEGAL_NAME);
+    expect(text).toContain(REGISTERED_ADDRESS);
+    expect(text).toContain(GOVERNING_LAW);
+    expect(text).toContain(`Operator: ${LEGAL_NAME}`);
+    expect(text).toContain(`Registered address: ${REGISTERED_ADDRESS}`);
+    expect(text).toContain(
+      `These terms are governed by ${GOVERNING_LAW}`,
+    );
+    for (const placeholder of REMOVED_PLACEHOLDERS) {
+      expect(text).not.toContain(placeholder);
     }
-    expect(text).not.toContain("[Support email — to be provided]");
     expect(text).toContain(SUPPORT_EMAIL);
     expectSupportContact(container, 7);
     expectLegalLinks(screen.getByRole("contentinfo"));
   });
 
-  it("renders the privacy policy with Waffo, card-data, and placeholder copy", () => {
+  it("renders the privacy policy with Waffo, card-data, and controller identity", () => {
     const { container } = render(<PrivacyPage />);
     const text = container.textContent ?? "";
 
@@ -92,10 +106,12 @@ describe("Terms of Service and Privacy Policy pages", () => {
       /does not pass through or get stored on CallMeMing servers/i,
     );
     expect(text).toContain("DPO: Not appointed");
-    expect(text).toContain("[Legal name — to be provided]");
-    expect(text).toContain("[Registered address — to be provided]");
-    expect(text).not.toContain("[Governing law / country or region — to be provided]");
-    expect(text).not.toContain("[Support email — to be provided]");
+    expect(text).toContain(LEGAL_NAME);
+    expect(text).toContain(REGISTERED_ADDRESS);
+    expect(text).not.toContain(GOVERNING_LAW);
+    for (const placeholder of REMOVED_PLACEHOLDERS) {
+      expect(text).not.toContain(placeholder);
+    }
     expect(text).toContain(SUPPORT_EMAIL);
     expectSupportContact(container, 6);
     expectLegalLinks(screen.getByRole("contentinfo"));

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalShell } from "@/components/LegalShell";
 import { SupportEmailLink } from "@/components/SiteFooter";
+import { LEGAL_NAME, REGISTERED_ADDRESS } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Privacy Policy — CallMeMing",
@@ -31,8 +32,8 @@ export default function PrivacyPage() {
         website is:
       </p>
       <div className="legal-contact">
-        <p>[Legal name — to be provided]</p>
-        <p>[Registered address — to be provided]</p>
+        <p>{LEGAL_NAME}</p>
+        <p>{REGISTERED_ADDRESS}</p>
         <p>
           <SupportEmailLink />
         </p>
@@ -308,8 +309,8 @@ export default function PrivacyPage() {
 
       <h2>13. Contact</h2>
       <div className="legal-contact">
-        <p>[Legal name — to be provided]</p>
-        <p>[Registered address — to be provided]</p>
+        <p>{LEGAL_NAME}</p>
+        <p>{REGISTERED_ADDRESS}</p>
         <p>
           <SupportEmailLink />
         </p>

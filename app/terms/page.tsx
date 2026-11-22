@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalShell } from "@/components/LegalShell";
 import { SupportEmailLink } from "@/components/SiteFooter";
+import { GOVERNING_LAW, LEGAL_NAME, REGISTERED_ADDRESS } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Terms of Service — CallMeMing",
@@ -32,9 +33,9 @@ export default function TermsPage() {
         transliterations and not fortune-telling.
       </p>
       <p>
-        Operator: [Legal name — to be provided]
+        Operator: {LEGAL_NAME}
         <br />
-        Registered address: [Registered address — to be provided]
+        Registered address: {REGISTERED_ADDRESS}
         <br />
         Support, billing, refunds, privacy, and legal contact:{" "}
         <SupportEmailLink />
@@ -285,8 +286,8 @@ export default function TermsPage() {
 
       <h2>16. Governing law and informal resolution</h2>
       <p>
-        These terms are governed by the laws of{" "}
-        [Governing law / country or region — to be provided], without regard to
+        These terms are governed by {GOVERNING_LAW}, without
+        regard to
         conflict-of-law rules, except where mandatory consumer-protection laws
         of your country or region of residence apply and cannot be waived.
       </p>
@@ -298,8 +299,8 @@ export default function TermsPage() {
 
       <h2>17. Contact</h2>
       <div className="legal-contact">
-        <p>[Legal name — to be provided]</p>
-        <p>[Registered address — to be provided]</p>
+        <p>{LEGAL_NAME}</p>
+        <p>{REGISTERED_ADDRESS}</p>
         <p>
           <SupportEmailLink />
         </p>
