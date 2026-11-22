@@ -6,13 +6,21 @@ import { CustomizeForm } from "@/components/CustomizeForm";
 import { SiteFooter } from "@/components/SiteFooter";
 import PrivacyPage from "@/app/privacy/page";
 import TermsPage from "@/app/terms/page";
+import { SUPPORT_EMAIL } from "@/lib/site";
 
-const PLACEHOLDERS = [
+const REMAINING_PLACEHOLDERS = [
   "[Legal name — to be provided]",
   "[Registered address — to be provided]",
-  "[Support email — to be provided]",
   "[Governing law / country or region — to be provided]",
 ];
+
+function expectSupportContact(container: HTMLElement, minCount = 1) {
+  const links = within(container).getAllByRole("link", { name: SUPPORT_EMAIL });
+  expect(links.length).toBeGreaterThanOrEqual(minCount);
+  for (const link of links) {
+    expect(link).toHaveAttribute("href", `mailto:${SUPPORT_EMAIL}`);
+  }
+}
 
 function expectLegalLinks(container: HTMLElement) {
   const terms = within(container).getByRole("link", { name: "Terms of Service" });
@@ -30,12 +38,14 @@ describe("SiteFooter and checkout legal links", () => {
     expect(footer).toHaveTextContent("CallMeMing");
     expect(footer).toHaveTextContent("callmeming.com");
     expect(footer).toHaveTextContent("A Real Chinese Name");
+    expectSupportContact(footer as HTMLElement);
   });
 
   it("shows Terms and Privacy links in the homepage footer without login", () => {
     render(<HomePage forcedState="empty" />);
     const footer = screen.getByRole("contentinfo");
     expectLegalLinks(footer);
+    expectSupportContact(footer);
   });
 
   it("shows Terms and Privacy links near the paid checkout CTA", () => {
@@ -61,9 +71,12 @@ describe("Terms of Service and Privacy Policy pages", () => {
     expect(text).toMatch(
       /does not pass through or get stored on CallMeMing servers/i,
     );
-    for (const placeholder of PLACEHOLDERS) {
+    for (const placeholder of REMAINING_PLACEHOLDERS) {
       expect(text).toContain(placeholder);
     }
+    expect(text).not.toContain("[Support email — to be provided]");
+    expect(text).toContain(SUPPORT_EMAIL);
+    expectSupportContact(container, 7);
     expectLegalLinks(screen.getByRole("contentinfo"));
   });
 
@@ -81,7 +94,10 @@ describe("Terms of Service and Privacy Policy pages", () => {
     expect(text).toContain("DPO: Not appointed");
     expect(text).toContain("[Legal name — to be provided]");
     expect(text).toContain("[Registered address — to be provided]");
-    expect(text).toContain("[Support email — to be provided]");
+    expect(text).not.toContain("[Governing law / country or region — to be provided]");
+    expect(text).not.toContain("[Support email — to be provided]");
+    expect(text).toContain(SUPPORT_EMAIL);
+    expectSupportContact(container, 6);
     expectLegalLinks(screen.getByRole("contentinfo"));
     const termsLinks = within(container).getAllByRole("link", {
       name: "Terms of Service",

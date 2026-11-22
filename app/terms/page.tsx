@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalShell } from "@/components/LegalShell";
+import { SupportEmailLink } from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
   title: "Terms of Service — CallMeMing",
@@ -36,7 +37,7 @@ export default function TermsPage() {
         Registered address: [Registered address — to be provided]
         <br />
         Support, billing, refunds, privacy, and legal contact:{" "}
-        [Support email — to be provided]
+        <SupportEmailLink />
       </p>
 
       <h2>2. Acceptance and eligibility</h2>
@@ -139,7 +140,7 @@ export default function TermsPage() {
         </li>
       </ul>
       <p>
-        To request a refund, email [Support email — to be provided] with your
+        To request a refund, email <SupportEmailLink /> with your
         order details or the email address used at checkout. We aim to reply
         within 2 business days. Eligible refunds are issued in 5–10 business
         days to the original payment method.
@@ -148,7 +149,7 @@ export default function TermsPage() {
       <h2>7. Billing disputes</h2>
       <p>
         If you believe a charge is incorrect, please contact us at{" "}
-        [Support email — to be provided] before filing a chargeback with your
+        <SupportEmailLink /> before filing a chargeback with your
         card issuer. We will review the order and, where a refund is due, process
         it under the policy above. This does not limit any rights you have
         against your payment provider.
@@ -266,7 +267,7 @@ export default function TermsPage() {
       </p>
       <p>
         To request deletion of personal information we hold, email{" "}
-        [Support email — to be provided]. We will handle the request as
+        <SupportEmailLink />. We will handle the request as
         described in the Privacy Policy, subject to records we must retain
         under law.
       </p>
@@ -291,7 +292,7 @@ export default function TermsPage() {
       </p>
       <p>
         Before starting a formal dispute, please contact us at{" "}
-        [Support email — to be provided] so we can try to resolve the matter
+        <SupportEmailLink /> so we can try to resolve the matter
         informally.
       </p>
 
@@ -299,7 +300,9 @@ export default function TermsPage() {
       <div className="legal-contact">
         <p>[Legal name — to be provided]</p>
         <p>[Registered address — to be provided]</p>
-        <p>[Support email — to be provided]</p>
+        <p>
+          <SupportEmailLink />
+        </p>
       </div>
       <p>
         Related: <Link href="/privacy">Privacy Policy</Link>.

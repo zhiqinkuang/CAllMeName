@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalShell } from "@/components/LegalShell";
+import { SupportEmailLink } from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
   title: "Privacy Policy — CallMeMing",
@@ -32,12 +33,14 @@ export default function PrivacyPage() {
       <div className="legal-contact">
         <p>[Legal name — to be provided]</p>
         <p>[Registered address — to be provided]</p>
-        <p>[Support email — to be provided]</p>
+        <p>
+          <SupportEmailLink />
+        </p>
       </div>
       <p>DPO: Not appointed</p>
       <p>
-        For privacy questions, the same address — [Support email — to be
-        provided] — is the contact we monitor.
+        For privacy questions, the same address — <SupportEmailLink /> — is
+        the contact we monitor.
       </p>
 
       <h2>2. Information we collect</h2>
@@ -275,7 +278,7 @@ export default function PrivacyPage() {
         <li>withdraw consent where processing is based on consent.</li>
       </ul>
       <p>
-        To exercise these rights, email [Support email — to be provided]. We
+        To exercise these rights, email <SupportEmailLink />. We
         will respond within 30 calendar days, or sooner if a shorter period is
         required by law. You may also lodge a complaint with your local data
         protection authority.
@@ -291,7 +294,7 @@ export default function PrivacyPage() {
         The service is for individuals who are 18 years or older. We do not
         knowingly collect personal information from anyone under 18. If you
         believe a child has provided information to us, contact{" "}
-        [Support email — to be provided] and we will delete it.
+        <SupportEmailLink /> and we will delete it.
       </p>
 
       <h2>12. Changes to this policy</h2>
@@ -307,7 +310,9 @@ export default function PrivacyPage() {
       <div className="legal-contact">
         <p>[Legal name — to be provided]</p>
         <p>[Registered address — to be provided]</p>
-        <p>[Support email — to be provided]</p>
+        <p>
+          <SupportEmailLink />
+        </p>
       </div>
       <p>DPO: Not appointed</p>
       <p>

@@ -14,6 +14,8 @@ export function getSiteUrl(env: EnvLike = process.env): string {
 
 export const SITE_NAME = "CallMeMing";
 
+export const SUPPORT_EMAIL = "zhiqinkuang@gmail.com";
+
 export const SITE_TITLE =
   "CallMeMing — Real Chinese Name Generator for Learners";
 
