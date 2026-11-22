@@ -83,6 +83,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={fontVariables}>
       <head>
+        <meta
+          name="waffo-verify"
+          content="4930ecde9814365d94312066848d06f4"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
