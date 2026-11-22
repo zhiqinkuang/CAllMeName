@@ -54,7 +54,7 @@ Contract six only: Friendly / Calm / Bright / Elegant / Modern / Scholarly.
 
 ### Results interactions
 
-- Copy name = `hanzi` only; Copy intro = `selfIntroduction`
+- On-card pinyin uses exhibit form `[lín · ān rán]` (API pinyin stays title case, e.g. `Lín Ānrán` / `Duàn Qǐmíng`). Intros and Copy intro keep title case. Copy name = `hanzi` only; Copy intro = `selfIntroduction`
 - Play = visual Playing… + `phoneticHint` (`audioUrl` null this MVP)
 - Open paper → elevates that card to primary (`?paper=0|1|2`)
 

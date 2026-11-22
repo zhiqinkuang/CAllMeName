@@ -23,7 +23,9 @@
 - GIVEN 未登录访客在首页且未触发限流
 - WHEN 用户触发免费生成且 `POST /api/names/free` 返回 200 与 `cards` 长度为 3
 - THEN 界面 SHALL 展示 3 张轻量名卡
-- AND 每张卡 SHALL 可见显示 `hanzi` 与 `pinyin`
+- AND 每张卡 SHALL 可见显示 `hanzi` 与拼音
+- AND 界面拼音 SHALL 使用展厅标本格式，例如 `Lín Ānrán` 显示为 `[lín · ān rán]`（小写、保留声调、姓与名之间用 `·`、名内音节空格、方括号）；SHALL NOT 在首页主名或次级名上直接写 `Lín Ānrán` / `Duàn Qǐmíng` 这种未加括号的词首大写形式
+- AND API 返回的 `pinyin` 仍为带声调的词首大写存储值，前端用显示格式化，SHALL NOT 为此改写接口存值
 - AND SHALL NOT 展示完整「为什么适合你」或完整自我介绍（免费层不写完整讲解）
 - AND 在约 390 宽的首页生成区，3 张卡 SHALL 竖排展示，SHALL NOT 挤成三列
 

@@ -245,7 +245,7 @@ ready | failed → refunded
 5. **邮件**：Resend。发件人暂定 `CallMeMing <hello@mail.callmeming.com>`（可改为 `hello@callmeming.com`，与运维对齐）。SPF/DKIM 等域名买下并解析后再配。
 6. **successUrl 不自动跳转**：结果页 generating 文案「正在准备你的名字」；约 60 秒后提示邮件链接。无 `cancelUrl`，不依赖 `/?checkout=canceled`。
 7. **邮箱**：站内表单不加可选邮箱，不预填 `buyerEmail`。
-8. **拼音**：声调符号（如 `Lǐ Wěi`）；`phoneticHint` 为英文近似读法，不是 IPA。
+8. **拼音**：API / 存储仍用带声调的词首大写（如 `Lǐ Wěi`、`Lín Ānrán`、`Duàn Qǐmíng`）。界面名卡注音用展厅格式 `[lín · ān rán]`（小写、`·`、方括号）；主纸与首页只显示该格式。结果页 Other candidates 可行内伴读 `[sū · jǐng xíng] · Sū Jǐngxíng`。`selfIntroduction` / Copy intro 保持词首大写，不改成括号式。`phoneticHint` 为英文近似读法，不是 IPA。
 9. **`refunded` 对外**：404，文案与无效/过期相同。
 10. **webhook 找不到本地订单**：验签后高优先级告警，返回 2xx，不用非 2xx 触发重试。本地曾 `expired` 后收到合法 `order.completed` 仍须履约。Webhook 先尽快 2xx，生成和发信异步。
 11. **音频**：不进本轮 MVP，`audioUrl` 保持 null。

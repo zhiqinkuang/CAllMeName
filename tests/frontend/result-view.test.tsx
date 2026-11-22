@@ -145,3 +145,64 @@ describe("ResultView F-T7/F-T8", () => {
     expect(screen.queryByRole("button", { name: /Copy name/i })).toBeNull();
   });
 });
+
+describe("ResultView pinyin annotation", () => {
+  it("shows specimen pinyin on the primary paper and secondary rows, without changing the intro", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText },
+    });
+
+    getResult.mockResolvedValue({
+      ok: true,
+      status: "ready",
+      cards: [
+        {
+          hanzi: "段启明",
+          pinyin: "Duàn Qǐmíng",
+          phoneticHint: "Dwan Chee-ming",
+          audioUrl: null,
+          whyItFitsYou: "why 段启明",
+          selfIntroduction: "Hi, my Chinese name is 段启明, Duàn Qǐmíng.",
+        },
+        {
+          hanzi: "苏景行",
+          pinyin: "Sū Jǐngxíng",
+          phoneticHint: "Soo Jing-shing",
+          audioUrl: null,
+          whyItFitsYou: "why 苏景行",
+          selfIntroduction: "Hi, my Chinese name is 苏景行.",
+        },
+        {
+          hanzi: "沈清越",
+          pinyin: "Shěn Qīngyuè",
+          phoneticHint: "Shen Ching-yweh",
+          audioUrl: null,
+          whyItFitsYou: "why 沈清越",
+          selfIntroduction: "Hi, my Chinese name is 沈清越.",
+        },
+      ],
+    });
+
+    render(<ResultView token="tok_pinyin" />);
+    await waitFor(() => expect(screen.getByText("段启明")).toBeInTheDocument());
+
+    expect(screen.getByText("[duàn · qǐ míng]")).toBeInTheDocument();
+    expect(screen.getByText("[sū · jǐng xíng] · Sū Jǐngxíng")).toBeInTheDocument();
+    expect(
+      screen.getByText("Hi, my Chinese name is 段启明, Duàn Qǐmíng."),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("[Duàn Qǐmíng]")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("copy-name"));
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith("段启明"));
+
+    fireEvent.click(screen.getByTestId("copy-intro"));
+    await waitFor(() =>
+      expect(writeText).toHaveBeenCalledWith(
+        "Hi, my Chinese name is 段启明, Duàn Qǐmíng.",
+      ),
+    );
+  });
+});

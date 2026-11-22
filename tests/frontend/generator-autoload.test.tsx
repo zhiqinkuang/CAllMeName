@@ -88,6 +88,9 @@ describe("Generator first-load auto-preview", () => {
     });
     const { unmount } = render(<Generator onCustomize={() => {}} />);
     expect(screen.getByText("林安然")).toBeInTheDocument();
+    expect(screen.getByText("[lín · ān rán]")).toBeInTheDocument();
+    expect(screen.getByText("[sū · jǐng xíng]")).toBeInTheDocument();
+    expect(screen.queryByText("Lín Ānrán")).not.toBeInTheDocument();
     expect(global.fetch).not.toHaveBeenCalled();
     unmount();
     render(<Generator onCustomize={() => {}} />);

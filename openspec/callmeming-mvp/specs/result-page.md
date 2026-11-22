@@ -10,7 +10,7 @@
 每张卡 SHALL 展示：
 
 - 定制名（`hanzi`）
-- 拼音（`pinyin`，声调符号）
+- 拼音注音：展厅标本格式，如 `[lín · ān rán]`（小写、保留声调、`·` 与方括号）。API `pinyin` 仍为带声调的词首大写（如 `Lín Ānrán`），仅用于展示格式化；主纸只显示括号小写式，不叠词首大写
 - 读音：本轮 MVP `audioUrl` 恒为 `null`，**始终**展示英文近似读法 `phoneticHint`；若将来 `audioUrl` 非 null 则可点播放
 - 为什么适合你（`whyItFitsYou`）
 - 可复制的自我介绍（`selfIntroduction`）
@@ -22,6 +22,15 @@
 - WHEN `GET /api/results/:token` 返回 200 且 `status: "ready"`，`cards` 长度为 3
 - THEN 页面 SHALL 渲染 3 张完整候选卡
 - AND 每张卡 SHALL 可见上述 Must 字段的文本内容
+
+### Scenario：名卡拼音注音为展厅标本格式
+
+- GIVEN 结果页处于 ready，且某张卡的 API `pinyin` 为 `Duàn Qǐmíng` 或 `Lín Ānrán`
+- WHEN 渲染主纸与 Other candidates
+- THEN 主纸拼音注音 SHALL 为 `[duàn · qǐ míng]` 或 `[lín · ān rán]`
+- AND Other candidates 行可采用 `[sū · jǐng xíng] · Sū Jǐngxíng`（括号小写式 + 词首大写伴读）
+- AND `selfIntroduction` 与 Copy intro 的文本 SHALL 保持词首大写（如句中的 `Duàn Qǐmíng`），SHALL NOT 改写成括号小写式
+- AND Copy name SHALL 只复制 `hanzi`，不含拼音字符串
 
 ### Scenario：无音频时降级
 

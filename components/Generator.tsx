@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { FreeCard } from "@/lib/api/types";
+import { formatPinyinSpecimen } from "@/lib/pinyin-display";
 import {
   NAME_STYLE_OPTIONS,
   type GeneratorState,
@@ -230,7 +231,7 @@ export function Generator({
             <>
               <div className="hero-name">
                 <div className={`hero-py${justRevealed ? " reveal-py" : ""}`}>
-                  {hero.pinyin}
+                  {formatPinyinSpecimen(hero.pinyin)}
                 </div>
                 <p className={`hero-hz${justRevealed ? " reveal-hero" : ""}`}>
                   {hero.hanzi}
@@ -245,7 +246,7 @@ export function Generator({
                     className={`support-item${justRevealed ? ` reveal-sup d${i + 1}` : ""}`}
                   >
                     <div className="support-mob-label">Also</div>
-                    <div className="py">{n.pinyin}</div>
+                    <div className="py">{formatPinyinSpecimen(n.pinyin)}</div>
                     <div className="hz">{n.hanzi}</div>
                   </div>
                 ))}

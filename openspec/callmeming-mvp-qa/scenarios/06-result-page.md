@@ -12,7 +12,7 @@
 - **前置条件**：`GET /api/results/:token` → 200，`status: "ready"`，`cards.length === 3`
 - **期望结果**：
   1. API / 数据层：恰好 3 张完整 FullCard（字段齐全）
-  2. UI：一张**主纸**展示当前主名的 Must 字段：hanzi、pinyin（声调）、phoneticHint、whyItFitsYou、英文 `selfIntroduction`，以及 `Copy name` / `Copy intro`
+  2. UI：一张**主纸**展示当前主名的 Must 字段：hanzi、拼音注音（展厅格式，如 `[lín · ān rán]` / `[duàn · qǐ míng]`）、phoneticHint、whyItFitsYou、英文 `selfIntroduction`，以及 `Copy name` / `Copy intro`。API `pinyin` 仍为词首大写存储值。`selfIntroduction` 中的拼音保持词首大写（如 `Duàn Qǐmíng`），不改成括号式。Other candidates 可采用 `[sū · jǐng xíng] · Sū Jǐngxíng`
   3. UI：存在 **Other candidates** 目录行；可通过 **Open paper** 将另一候选升为主纸；升为主纸后该名同样具备完整 Must 字段与复制控件
   4. SHALL NOT 按旧期望「三张同构完整卡同时竖排铺满」判失败
   5. 不强制登录即可查看
@@ -143,7 +143,7 @@
 - **入口**：ready 态主纸 `Copy name`（桌面与 ≈390）
 - **前置条件**：结果页 ready
 - **期望结果**：
-  1. 剪贴板仅为该卡 `hanzi`（如林安然；不含拼音、不含自我介绍）
+  1. 剪贴板仅为该卡 `hanzi`（如林安然或段启明；不含拼音字符串，也不含 `[lín · ān rán]` 或 `Duàn Qǐmíng`；不含自我介绍）
   2. 控件文案 `Copy name`，与 `Copy intro` 分开
   3. 桌面：`Copy name` 与拼音、Play 同一行
   4. 390：`Copy name` 在拼音下方单独一行按钮

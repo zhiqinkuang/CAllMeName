@@ -8,6 +8,7 @@ import {
   RESULTS_TIMEOUT_MS,
 } from "@/lib/api/results";
 import type { FullCard } from "@/lib/api/types";
+import { formatPinyinSecondaryRow, formatPinyinSpecimen } from "@/lib/pinyin-display";
 import { SiteFooter } from "./SiteFooter";
 import { Wordmark } from "./Wordmark";
 
@@ -361,7 +362,7 @@ export function ResultView({
           <div className="alt-row" key={`${card.hanzi}-${index}`}>
             <div>
               <div className="hz">{card.hanzi}</div>
-              <div className="py">{card.pinyin}</div>
+              <div className="py">{formatPinyinSecondaryRow(card.pinyin)}</div>
             </div>
             <p className="blurb">{card.whyItFitsYou}</p>
             <button
@@ -414,7 +415,7 @@ function PrimaryPaper({
   return (
     <article className={paperClass} aria-hidden={exiting || undefined}>
       <div className="pp-left">
-        <div className="py">[{name.pinyin}]</div>
+        <div className="py">{formatPinyinSpecimen(name.pinyin)}</div>
         <div className="hz">{name.hanzi}</div>
         <div className="roman">{name.phoneticHint}</div>
         <div className="acts">
