@@ -38,9 +38,13 @@ If native SWC bus-errors, keep `@next/swc-wasm-nodejs`.
 | `/` | Hero → Generator (`POST /api/names/free`) → Free vs Custom → Customize (`POST /api/checkout` → `location.href`) → How it works → FAQ×3 → Footer |
 | `/results/[token]` | `GET /api/results/:token`; poll 202 every 2s; ready / failed / not_found |
 
-### Name style (v1.1)
+### Name style (v1.2)
 
-- Default **Either is fine** → body `{ "genderPreference": "neutral" }` (UI always sends the enum; does not rely on empty `{}`)
+- First visit auto-generates one set with default **Either is fine** → `{ "genderPreference": "neutral" }` and counts as 1 free generation
+- Same session refresh reuses that set (no new request, no extra count)
+- Changing Name style does not auto-regenerate; only **Generate** (including after a style change) requests a new set
+- Auto-preview loading uses a short “— — —” placeholder, never “Waiting for a click”; names enter with the same reveal motion as a manual Generate
+- Crawlers get a fixed sample set and are not rate-limited
 - Typically feminine / Typically masculine → `feminine` / `masculine`
 - 429 UI copy: “a few names each day” only
 
@@ -56,7 +60,7 @@ Contract six only: Friendly / Calm / Bright / Elegant / Modern / Scholarly.
 
 ### QA query params
 
-- Homepage: `/?generator=empty|generating|limit` (forces visual state; ready is not seeded with demo names)
+- Homepage: `/?generator=empty|generating|limit` (forces visual state and disables auto-preview; ready is not seeded with demo names)
 - Results: `/results/{token}?paper=0|1|2` (legacy `anran|jingxing|qingyue` aliases still parse)
 
 ## Tests

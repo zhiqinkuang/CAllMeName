@@ -33,7 +33,7 @@ describe("SiteFooter and checkout legal links", () => {
   });
 
   it("shows Terms and Privacy links in the homepage footer without login", () => {
-    render(<HomePage initialGenerator="empty" />);
+    render(<HomePage forcedState="empty" />);
     const footer = screen.getByRole("contentinfo");
     expectLegalLinks(footer);
   });

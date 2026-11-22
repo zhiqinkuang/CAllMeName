@@ -163,3 +163,16 @@
   2. SHALL NOT 只渲染部分卡并称为成功完成
 - **优先级**：P0
 - **追溯**：`specs/free-name-cards.md` → Scenario：响应形状异常
+
+---
+
+## FC-13 更换 Name style 不自动再生
+
+- **场景**：只改 Name style 不自动出新组；点击 Generate 后才出新组并计数
+- **入口**：已展示免费结果后更改 Name style，再视情况点击 Generate
+- **前置条件**：页面已有一组轻量名
+- **期望结果**：
+  1. 只更改 Name style 时仍展示当前这一组，不发新请求
+  2. 点击 Generate 后按所选 style 请求新组并计数
+- **优先级**：P0
+- **追溯**：`specs/free-name-cards.md` → Scenario：更换 Name style 不自动再生

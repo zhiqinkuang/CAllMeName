@@ -1,8 +1,8 @@
 # CallMeMing MVP — API 契约（正式 · 单一真源）
 
-- 版本：正式合并 v1.1
+- 版本：正式合并 v1.2
 - 日期：2026-11-09（Asia/Shanghai）
-- 变更：v1.1 为 `POST /api/names/free` 补充可选 `genderPreference`（产品 2026-11-09 收口：免费首页 Name style，默认 Either is fine / `neutral`）
+- 变更：v1.2 补充首页首次自动预览与爬虫示例名（产品 2026-11-22 PRD v0.5）。v1.1 为 `POST /api/names/free` 补充可选 `genderPreference`（产品 2026-11-09 收口：免费首页 Name style，默认 Either is fine / `neutral`）
 - Base URL：同源 `https://callmeming.com`（预发建议 `https://staging.callmeming.com`，购入并经运维确认后再用，不要对外宣布已锁定）
 - Content-Type：`application/json; charset=utf-8`
 - CORS：环境变量白名单；主站 `https://callmeming.com`，预发建议 `https://staging.callmeming.com`；Vercel preview 域只有写入白名单才能放行，不要用 `*`；默认不需要凭证（无 Cookie 会话）
@@ -69,7 +69,7 @@ type DesiredFeeling = "friendly" | "calm" | "bright" | "elegant" | "modern" | "s
 
 Body 仍可为 `{}`，不因此返回 400。
 
-频控（**已定**）：同一 IP（只存 IP 哈希）滚动小时窗口 ≤ 3 次；自然日按 **UTC** 计数，每天 ≤ 10 次。
+频控（**已定**）：同一 IP（只存 IP 哈希）滚动小时窗口 ≤ 3 次；自然日按 **UTC** 计数，每天 ≤ 10 次。搜索引擎与社交预览爬虫的请求返回固定示例名，不走真实生成，不记入频控。真人首次打开首页的自动预览与点击 Generate 一样计入次数；清空客户端存储不能绕过 IP 频控。
 
 ### Response `200`
 

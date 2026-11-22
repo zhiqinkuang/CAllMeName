@@ -142,3 +142,18 @@
   3. `message` 可展示（契约示例：`Too many free generations. Try again later.`）
 - **优先级**：P0
 - **追溯**：`api-contract.md` §1 Response 429；错误形状表
+
+---
+
+## FN-11 爬虫调用免费接口返回固定示例且不计数
+
+- **场景**：搜索爬虫 POST `/api/names/free` 得到固定示例，不走真实生成，不记频控
+- **入口**：`POST /api/names/free`，User-Agent 为 Googlebot 等
+- **前置条件**：可识别的爬虫 UA
+- **期望结果**：
+  1. HTTP 200，返回固定 3 张示例轻量名
+  2. SHALL NOT 记录该 IP 的频控事件
+  3. SHALL NOT 走真实词表抽样
+  4. 普通浏览器仍走真实生成与 IP 频控
+- **优先级**：P0
+- **追溯**：`specs/free-name-generation/spec.md` → Scenario：搜索爬虫不计入限额

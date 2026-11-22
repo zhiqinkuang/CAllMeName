@@ -1,5 +1,6 @@
+import { headers } from "next/headers";
 import { HomePage } from "@/components/HomePage";
-import { parseGeneratorParam, type GeneratorState } from "@/lib/demo-data";
+import { resolveHomepageProps } from "@/lib/homepage-props";
 
 export default async function Page({
   searchParams,
@@ -7,6 +8,10 @@ export default async function Page({
   searchParams: Promise<{ generator?: string }>;
 }) {
   const sp = await searchParams;
-  const initial: GeneratorState = parseGeneratorParam(sp.generator) ?? "empty";
-  return <HomePage initialGenerator={initial} />;
+  const userAgent = (await headers()).get("user-agent");
+  const { forcedState, sampleCards } = resolveHomepageProps({
+    generatorParam: sp.generator,
+    userAgent,
+  });
+  return <HomePage forcedState={forcedState} sampleCards={sampleCards} />;
 }

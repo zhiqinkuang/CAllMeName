@@ -2,7 +2,7 @@
 
 - 能力：`free-name-generation`
 - 产品：CallMeMing
-- 版本：正式合并 v1.1
+- 版本：正式合并 v1.2
 - 契约：`../../api-contract.md`
 
 ## Purpose
@@ -141,3 +141,19 @@
 - GIVEN 请求体包含非法的 `genderPreference` 值
 - WHEN 调用免费生成
 - THEN 返回 `400` 且 `error` 为 `validation_error`
+
+---
+
+### Requirement: 爬虫请求 SHALL 返回固定示例且不计入频控
+
+系统 SHALL 识别常见搜索引擎与社交预览爬虫的 User-Agent。对此类请求，系统 SHALL 返回一组固定示例轻量名，SHALL NOT 走真实词表生成，SHALL NOT 记录频控事件。普通浏览器（含常规自动化 Chromium）SHALL 仍走真实生成与 IP 频控。
+
+#### Scenario: 搜索爬虫不计入限额
+
+- GIVEN 请求携带搜索引擎爬虫 User-Agent（如 Googlebot）
+- WHEN 调用 `POST /api/names/free`
+- THEN 响应状态为 `200`
+- AND 返回固定的 3 张示例轻量名
+- AND 系统 SHALL NOT 记录该 IP 的频控事件
+- AND 系统 SHALL NOT 走真实词表抽样
+

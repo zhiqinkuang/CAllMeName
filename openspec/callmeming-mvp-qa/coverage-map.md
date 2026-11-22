@@ -1,8 +1,8 @@
 # 覆盖追溯表：正式 OpenSpec → QA 场景
 
 权威目录：`/workspace/openspec/callmeming-mvp/`（正式 OpenSpec **v1.1**）  
-QA 目录：`/workspace/openspec/callmeming-mvp-qa/`（QA **v1.1** 文档同步）  
-场景总数：109（未增删 ID）  
+QA 目录：`/workspace/openspec/callmeming-mvp-qa/`（QA **v1.2** 文档同步，对齐 PRD v0.5 首次自动预览）  
+场景总数：113（新增 HP-15、HP-16、FC-13、FN-11；HP-12 改为首次自动生成）  
 视觉基准：`/workspace/callmeming-ui/exhibit/`
 
 ## specs/homepage.md
@@ -18,7 +18,9 @@ QA 目录：`/workspace/openspec/callmeming-mvp-qa/`（QA **v1.1** 文档同步�
 | 上线首页结构与状态变体（含 Customize；390 一主二从） | HP-07, HP-08, HP-09, GEO-04 |
 | 禁止命理主路径 | HP-10, EX-01, EX-02 |
 | 首屏加载 | HP-11 |
-| 免费区初始空态 | HP-12 |
+| 首次打开即自动生成 | HP-12 |
+| 同一会话刷新复用已有结果 | HP-15 |
+| 爬虫首页展示固定示例名 | HP-16 |
 | 付费区初始空态 | HP-13, CO-12 |
 | 关闭收银台后无回调 | HP-14, CO-10, EX-05 |
 
@@ -37,6 +39,8 @@ QA 目录：`/workspace/openspec/callmeming-mvp-qa/`（QA **v1.1** 文档同步�
 | prefers-reduced-motion | FC-10 |
 | 网络或 5xx | FC-11 |
 | 响应形状异常 | FC-12 |
+| 更换 Name style 不自动再生 | FC-13 |
+| 首次自动预览计一次 | HP-12, FC-01 |
 
 ## specs/free-name-generation/spec.md
 
@@ -52,6 +56,7 @@ QA 目录：`/workspace/openspec/callmeming-mvp-qa/`（QA **v1.1** 文档同步�
 | 免费生成不调用 LLM | FN-08 |
 | 拼音使用声调符号 | FN-09 |
 | 错误形状 | FN-10 |
+| 爬虫返回固定示例且不计数 | FN-11, HP-16 |
 
 ## specs/checkout.md
 
@@ -133,7 +138,7 @@ QA 目录：`/workspace/openspec/callmeming-mvp-qa/`（QA **v1.1** 文档同步�
 
 | 章节 | QA ID |
 |------|-------|
-| §1 POST /api/names/free（v1.1 可选 genderPreference；`{}`/`null`/缺省→neutral；非法→400） | FN-*, FC-* |
+| §1 POST /api/names/free（v1.2 爬虫示例名 + 首次自动预览计次；v1.1 可选 genderPreference；`{}`/`null`/缺省→neutral；非法→400） | FN-*, FC-*, HP-12, HP-15, HP-16 |
 | §2 POST /api/checkout | CO-*, PF-01..07 |
 | §3 GET /api/results/:token | RP-*, SE-*, PF-08, PF-15 |
 | §4 webhooks/waffo | PF-09..14, PF-17 |

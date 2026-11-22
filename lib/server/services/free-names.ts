@@ -1,3 +1,4 @@
+import { CRAWLER_SAMPLE_CARDS, isCrawler } from "@/lib/crawlers";
 import type { RateLimitService } from "../rate-limit/service";
 import { generateFreeCards } from "../names/generator";
 import { parseOptionalGenderPreference } from "../validation";
@@ -7,6 +8,7 @@ export type FreeNamesService = {
   generate(args: {
     body: unknown;
     ip: string;
+    userAgent?: string | null;
   }): Promise<{ cards: FreeCard[]; genderPreference: GenderPreference }>;
 };
 
@@ -24,7 +26,14 @@ export function createFreeNamesService(deps: {
   const { rateLimit, hooks } = deps;
 
   return {
-    async generate({ body, ip }) {
+    async generate({ body, ip, userAgent }) {
+      if (isCrawler(userAgent)) {
+        return {
+          cards: CRAWLER_SAMPLE_CARDS,
+          genderPreference: "neutral",
+        };
+      }
+
       const raw =
         body && typeof body === "object"
           ? (body as Record<string, unknown>).genderPreference

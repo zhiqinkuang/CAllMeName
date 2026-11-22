@@ -11,8 +11,9 @@ export async function POST(request: Request) {
   try {
     const body = await readJsonBody(request);
     const ip = extractClientIp(request);
+    const userAgent = request.headers.get("user-agent");
     const { freeNames } = getContainer();
-    const { cards } = await freeNames.generate({ body, ip });
+    const { cards } = await freeNames.generate({ body, ip, userAgent });
     return apiJson(request, { cards });
   } catch (err) {
     const { corsAllowedOrigins } = getContainer();

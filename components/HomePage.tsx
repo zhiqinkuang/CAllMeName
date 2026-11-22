@@ -1,5 +1,6 @@
 "use client";
 
+import type { FreeCard } from "@/lib/api/types";
 import { type GeneratorState } from "@/lib/demo-data";
 import { CustomizeForm } from "./CustomizeForm";
 import { Generator } from "./Generator";
@@ -7,9 +8,11 @@ import { SiteFooter } from "./SiteFooter";
 import { Wordmark } from "./Wordmark";
 
 export function HomePage({
-  initialGenerator,
+  forcedState = null,
+  sampleCards = null,
 }: {
-  initialGenerator: GeneratorState;
+  forcedState?: GeneratorState | null;
+  sampleCards?: FreeCard[] | null;
 }) {
   function scrollToForm() {
     document.getElementById("custom")?.scrollIntoView({ behavior: "smooth" });
@@ -27,7 +30,7 @@ export function HomePage({
         </div>
       </nav>
 
-      <Generator initialState={initialGenerator} onCustomize={scrollToForm} />
+      <Generator forcedState={forcedState} sampleCards={sampleCards} onCustomize={scrollToForm} />
 
       <p className="section-title">Free vs Custom</p>
       <section className="catalog">
@@ -35,7 +38,7 @@ export function HomePage({
           <h2 className="lab">Free</h2>
           <p className="body">
             Hanzi + pinyin. Three specimen names. No signup.
-            <span className="sub">One click. No account required.</span>
+            <span className="sub">No account required.</span>
           </p>
         </div>
         <div className="catalog-row">

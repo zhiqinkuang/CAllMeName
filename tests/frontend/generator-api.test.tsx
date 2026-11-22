@@ -20,19 +20,19 @@ function okCards() {
 
 describe("Generator API wiring", () => {
   beforeEach(() => {
+    sessionStorage.clear();
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(okCards()));
   });
   afterEach(() => {
     vi.unstubAllGlobals();
+    sessionStorage.clear();
   });
 
   it("defaults Name style to Either is fine and posts neutral", async () => {
-    const user = userEvent.setup();
     render(<Generator onCustomize={() => {}} />);
     expect(
       screen.getByRole("button", { name: "Either is fine" }),
     ).toHaveClass("on");
-    await user.click(screen.getByRole("button", { name: "Generate free names" }));
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalled();
     });
@@ -43,9 +43,12 @@ describe("Generator API wiring", () => {
     });
   });
 
-  it("posts feminine when Typically feminine is selected", async () => {
+  it("posts feminine when Typically feminine is selected and Generate is clicked", async () => {
     const user = userEvent.setup();
     render(<Generator onCustomize={() => {}} />);
+    await waitFor(() => {
+      expect(screen.getByText("甲乙丙")).toBeInTheDocument();
+    });
     await user.click(
       screen.getByRole("button", { name: "Typically feminine" }),
     );
@@ -53,14 +56,17 @@ describe("Generator API wiring", () => {
       screen.getByRole("button", { name: "Typically feminine" }),
     ).toHaveClass("on");
     await user.click(screen.getByRole("button", { name: "Generate free names" }));
-    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
-    const [, init] = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(2));
+    const [, init] = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[1];
     expect(JSON.parse(init.body)).toEqual({ genderPreference: "feminine" });
   });
 
-  it("posts masculine when Typically masculine is selected", async () => {
+  it("posts masculine when Typically masculine is selected and Generate is clicked", async () => {
     const user = userEvent.setup();
     render(<Generator onCustomize={() => {}} />);
+    await waitFor(() => {
+      expect(screen.getByText("甲乙丙")).toBeInTheDocument();
+    });
     await user.click(
       screen.getByRole("button", { name: "Typically masculine" }),
     );
@@ -68,8 +74,8 @@ describe("Generator API wiring", () => {
       screen.getByRole("button", { name: "Typically masculine" }),
     ).toHaveClass("on");
     await user.click(screen.getByRole("button", { name: "Generate free names" }));
-    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
-    const [, init] = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(2));
+    const [, init] = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[1];
     expect(JSON.parse(init.body)).toEqual({ genderPreference: "masculine" });
   });
 
@@ -86,9 +92,7 @@ describe("Generator API wiring", () => {
         }),
       }),
     );
-    const user = userEvent.setup();
     render(<Generator onCustomize={() => {}} />);
-    await user.click(screen.getByRole("button", { name: "Generate free names" }));
     await waitFor(() => {
       expect(screen.getByText(/a few names each day/i)).toBeInTheDocument();
     });
@@ -107,9 +111,7 @@ describe("Generator API wiring", () => {
         }),
       }),
     );
-    const user = userEvent.setup();
     render(<Generator onCustomize={() => {}} />);
-    await user.click(screen.getByRole("button", { name: "Generate free names" }));
     await waitFor(() => {
       expect(screen.getByText(/Invalid genderPreference/i)).toBeInTheDocument();
     });

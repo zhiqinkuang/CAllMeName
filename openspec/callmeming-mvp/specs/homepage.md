@@ -2,7 +2,7 @@
 
 - 状态：正式合并 v1.0
 - 页面：英语首页
-- 依据：PRD v0.4；前端贡献包 0.10；视觉 `/workspace/callmeming-ui/`
+- 依据：PRD v0.5；前端贡献包 0.10；视觉 `/workspace/callmeming-ui/`
 
 ## Requirement：品牌与 SEO 文案 SHALL 与 PRD 一致
 
@@ -76,17 +76,20 @@
 
 ### Scenario：首屏加载
 
-- GIVEN 用户首次打开首页
-- WHEN 资源仍在加载
-- THEN 系统 SHALL 展示可理解的加载反馈或骨架/占位（具体视觉由设计稿定）
-- AND SHALL NOT 因装饰性动效阻止用户在可交互控件就绪后点击免费生成
+- GIVEN 普通访客首次打开首页且同一会话尚无免费结果
+- WHEN 自动预览请求尚未返回
+- THEN 系统 SHALL 展示短暂占位（如 “— — —” 或呼吸感占位），SHALL NOT 展示 “Waiting for a click”
+- AND 已达限流时，请求返回后 SHALL 立即展示限流状态，SHALL NOT 停在空卡等待点击
+- AND SHALL NOT 因装饰性动效阻止用户在可交互控件就绪后再次点击 Generate
 
-### Scenario：免费区初始空态
+### Scenario：首次打开即自动生成
 
-- GIVEN 用户尚未成功生成免费名卡
-- WHEN 免费区处于初始状态
-- THEN 系统 SHALL 明确展示生成入口
-- AND SHALL NOT 假装已有 3 张真实名卡数据
+- GIVEN 未登录真人访客首次打开首页，且同一会话尚无已保存的免费结果，且 IP 未达限流
+- WHEN 页面完成首屏渲染
+- THEN 系统 SHALL 按默认 Name style（Either is fine / `neutral`）自动请求一组免费名，不必先点击 Generate
+- AND 这次自动预览 SHALL 计入 1 次免费次数
+- AND 名字出现时 SHALL 使用与点击 Generate 成功后相同的主名入场动效（减动偏好下可立即展示全文）
+- AND `?generator=` QA 覆盖态 MAY 关闭自动预览以对照视觉变体
 
 ### Scenario：付费区初始空态
 

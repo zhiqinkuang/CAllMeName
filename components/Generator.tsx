@@ -1,13 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { postFreeNames } from "@/lib/api/free-names";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { FreeCard } from "@/lib/api/types";
 import {
   NAME_STYLE_OPTIONS,
   type GeneratorState,
   type NameStyle,
 } from "@/lib/demo-data";
+import {
+  readFreeNamesSession,
+  requestFreeNames,
+  writeFreeNamesSession,
+} from "@/lib/free-session";
 
 function prefersReducedMotion(): boolean {
   if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
@@ -16,49 +20,56 @@ function prefersReducedMotion(): boolean {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+function hasSampleCards(cards: FreeCard[] | null | undefined): cards is FreeCard[] {
+  return Array.isArray(cards) && cards.length === 3;
+}
+
 type Props = {
-  initialState?: GeneratorState;
+  /** QA visual override from ?generator=; disables auto-preview. */
+  forcedState?: GeneratorState | null;
+  /** Crawler SSR specimens; shown as-is, no generation request. */
+  sampleCards?: FreeCard[] | null;
   onCustomize: () => void;
 };
 
-export function Generator({ initialState = "empty", onCustomize }: Props) {
-  const [state, setState] = useState<GeneratorState>(
-    initialState === "ready" ? "empty" : initialState,
-  );
+export function Generator({
+  forcedState = null,
+  sampleCards = null,
+  onCustomize,
+}: Props) {
+  const qaLocked = forcedState != null;
+  const crawlerSamples = hasSampleCards(sampleCards) ? sampleCards : null;
+
+  const [state, setState] = useState<GeneratorState>(() => {
+    if (forcedState === "ready") return "empty";
+    if (forcedState) return forcedState;
+    if (crawlerSamples) return "ready";
+    return "generating";
+  });
   const [style, setStyle] = useState<NameStyle>("neutral");
-  const [cards, setCards] = useState<FreeCard[] | null>(null);
+  const [cards, setCards] = useState<FreeCard[] | null>(() => crawlerSamples);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [justRevealed, setJustRevealed] = useState(false);
   const inFlight = useRef(false);
 
-  // Style-QA override: ?generator= can force visual state without API
-  useEffect(() => {
-    if (initialState === "empty") {
-      setState("empty");
-      setCards(null);
-      setJustRevealed(false);
-    } else if (initialState === "generating") {
-      setState("generating");
-      setCards(null);
-    } else if (initialState === "limit") {
-      setState("limit");
-      setCards(null);
-    } else if (initialState === "ready") {
-      // Keep empty until Generate; do not seed demo names.
-      setState("empty");
-      setCards(null);
-    }
-  }, [initialState]);
+  useLayoutEffect(() => {
+    if (qaLocked || crawlerSamples) return;
+    const stored = readFreeNamesSession();
+    if (!stored) return;
+    setCards(stored.cards);
+    setState("ready");
+    setJustRevealed(false);
+  }, [qaLocked, crawlerSamples]);
 
-  const generate = useCallback(async () => {
-    if (inFlight.current || state === "generating") return;
+  const generate = useCallback(async (preference: NameStyle) => {
+    if (inFlight.current) return;
     inFlight.current = true;
     setJustRevealed(false);
     setErrorMessage(null);
     setState("generating");
     setCards(null);
 
-    const result = await postFreeNames(style);
+    const result = await requestFreeNames(preference);
 
     inFlight.current = false;
 
@@ -66,6 +77,7 @@ export function Generator({ initialState = "empty", onCustomize }: Props) {
       setCards(result.cards);
       setState("ready");
       setJustRevealed(!prefersReducedMotion());
+      writeFreeNamesSession({ cards: result.cards });
       return;
     }
 
@@ -78,7 +90,28 @@ export function Generator({ initialState = "empty", onCustomize }: Props) {
     setState("error");
     setErrorMessage(result.message);
     setCards(null);
-  }, [state, style]);
+  }, []);
+
+  useEffect(() => {
+    if (qaLocked || crawlerSamples) return;
+    if (readFreeNamesSession()) return;
+    void generate("neutral");
+  }, [generate, qaLocked, crawlerSamples]);
+
+  useEffect(() => {
+    if (!qaLocked) return;
+    if (forcedState === "empty" || forcedState === "ready") {
+      setState("empty");
+      setCards(null);
+      setJustRevealed(false);
+    } else if (forcedState === "generating") {
+      setState("generating");
+      setCards(null);
+    } else if (forcedState === "limit") {
+      setState("limit");
+      setCards(null);
+    }
+  }, [qaLocked, forcedState]);
 
   const hero = cards?.[0];
   const support = cards?.slice(1) ?? [];
@@ -111,7 +144,7 @@ export function Generator({ initialState = "empty", onCustomize }: Props) {
             <button
               type="button"
               className="stamp"
-              onClick={() => void generate()}
+              onClick={() => void generate(style)}
               disabled={state === "generating"}
             >
               Generate free names
@@ -142,7 +175,7 @@ export function Generator({ initialState = "empty", onCustomize }: Props) {
             <button
               type="button"
               className="text-link"
-              onClick={() => void generate()}
+              onClick={() => void generate(style)}
             >
               Try again →
             </button>
@@ -175,20 +208,19 @@ export function Generator({ initialState = "empty", onCustomize }: Props) {
           {state === "generating" && (
             <>
               <div className="hero-name">
-                <div className="hero-py" style={{ opacity: 0.35 }}>
-                  ········
+                <div className="hero-py" style={{ visibility: "hidden" }}>
+                  [······]
                 </div>
-                <p className="hero-hz pulse">···</p>
-                <div className="hero-meta">Writing names…</div>
+                <p className="hero-hz faint pulse">— — —</p>
               </div>
               <aside className="support-col">
                 <div className="support-item">
                   <div className="support-mob-label">Also</div>
-                  <div className="hz pulse">··</div>
+                  <div className="hz faint pulse">— —</div>
                 </div>
                 <div className="support-item">
                   <div className="support-mob-label">Also</div>
-                  <div className="hz pulse">··</div>
+                  <div className="hz faint pulse">— —</div>
                 </div>
               </aside>
             </>

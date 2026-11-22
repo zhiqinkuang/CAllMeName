@@ -2,7 +2,7 @@
 
 - 状态：正式合并 v1.0
 - 数据形状：见 `../api-contract.md` 的 `FreeCard`
-- 依据：PRD v0.4；前端贡献包 0.10
+- 依据：PRD v0.5；前端贡献包 0.10
 
 ## Requirement：未登录访客 SHALL 可生成 3 张轻量名卡
 
@@ -41,6 +41,47 @@
 - WHEN 渲染该区域
 - THEN 界面 SHALL 只展示当前这一种状态
 - AND SHALL NOT 把 Empty、Generating、Daily limit 并列展示为常驻区块
+
+## Requirement：首次打开 SHALL 自动预览且同一会话可复用
+
+系统 SHALL 在真人访客首次打开首页时按默认 Either is fine 自动生成一组轻量名并计 1 次。  
+同一会话内刷新或再次进入首页，系统 SHALL 展示已有那一组，SHALL NOT 再请求，SHALL NOT 再计数。  
+仅当用户点击 Generate（含更换 Name style 后点击）时，系统 SHALL 生成新的一组并计数。更换 Name style 本身 SHALL NOT 自动重新生成。  
+已达限流时，首次进入 SHALL 立即展示限流状态。清空客户端存储不得绕过服务端 IP 频控。  
+搜索引擎等爬虫打开首页 SHALL 展示一组固定或缓存的示例名，SHALL NOT 走真实生成，SHALL NOT 计入限流。
+
+### Scenario：首次自动预览计一次
+
+- GIVEN 未登录真人访客首次打开首页，会话内尚无免费结果，且 IP 未达限流
+- WHEN 页面加载且尚未点击 Generate
+- THEN 系统 SHALL 以 `genderPreference: "neutral"` 调用 `POST /api/names/free`
+- AND 成功后展示 3 张轻量名卡
+- AND 这次调用计入免费次数
+- AND 自动预览进行中 SHALL NOT 展示 “Waiting for a click”，只使用短暂占位（如 “— — —”）
+- AND 名字出现时 SHALL 使用与点击 Generate 成功后相同的主名入场动效
+
+### Scenario：同一会话刷新复用结果
+
+- GIVEN 本次会话已成功展示一组免费名
+- WHEN 用户刷新或再次进入首页
+- THEN 界面 SHALL 展示同一组名字
+- AND SHALL NOT 再请求 `POST /api/names/free`
+- AND SHALL NOT 再计数
+
+### Scenario：更换 Name style 不自动再生
+
+- GIVEN 页面已展示一组免费名
+- WHEN 用户只更改 Name style、尚未点击 Generate
+- THEN 系统 SHALL 继续展示当前这一组
+- AND SHALL NOT 自动发起新的生成请求
+
+### Scenario：爬虫首页展示示例名
+
+- GIVEN 搜索引擎或社交预览爬虫打开首页
+- WHEN 页面渲染
+- THEN 系统 SHALL 展示一组固定或缓存的示例轻量名
+- AND SHALL NOT 调用真实词表生成
+- AND SHALL NOT 计入 IP 频控
 
 ## Requirement：免费名质量期望 SHALL 体现在前端展示与错误处理
 
