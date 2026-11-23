@@ -86,6 +86,7 @@ describe("results + webhook fulfillment (B-D*, B-E*)", () => {
     expect(ready.status).toBe(200);
     const json = await ready.json();
     expect(json.status).toBe("ready");
+    expect(json.englishName).toBe("Alice");
     expect(json.cards).toHaveLength(3);
     for (const c of json.cards) {
       expect(c.hanzi).toBeTruthy();

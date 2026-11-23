@@ -202,10 +202,12 @@
 - **入口**：`GET /api/results/:token`
 - **前置条件**：订单 ready
 - **期望结果**：
-  1. HTTP 200；`status` = `ready`；`cards.length` = 3
+  1. HTTP 200；`status` = `ready`；`cards.length` = 3；响应含该订单 `englishName`
   2. 每张含 `phoneticHint` 与英文 `whyItFitsYou`、`selfIntroduction`
-  3. 本轮每张 `audioUrl` 为 `null`（不堵塞 ready）
-  4. `pinyin` 使用声调符号，SHALL NOT 数字音调
+  3. `whyItFitsYou` 须讲清字义，以及与英文名读音或含义、所选 Feeling 的对应；SHALL NOT 只给套话模板
+  4. `selfIntroduction` 含该卡精确汉字
+  5. 本轮每张 `audioUrl` 为 `null`（不堵塞 ready）
+  6. `pinyin` 使用声调符号、词首大写，SHALL NOT 数字音调
 - **优先级**：P0
 - **追溯**：`specs/paid-checkout-and-fulfillment/spec.md` → Scenario：付费卡字段齐全；`design.md` §10.8 / §10.11
 
@@ -249,3 +251,35 @@
   2. 未进入 ready 前，results 不得返回完整定制名卡
 - **优先级**：P0
 - **追溯**：`api-contract.md` §5；`design.md` §1
+
+---
+
+## PF-19 付费抽名按 Feeling 加权并参考英文名
+
+- **场景**：付费抽样进入选名步骤，不只把 Feeling / 英文名写进讲解
+- **入口**：履约生成 `generatePaidNameBases`（或等价抽样）
+- **前置条件**：`englishName` = `"Elena"`，`genderPreference` = `neutral`，`desiredFeeling` = `calm`
+- **期望结果**：
+  1. 返回 3 个互异名字，均来自词表，汉字 2–3 字
+  2. SHALL NOT 输出整段音译或词表外造名（如「埃琳娜」）
+  3. 结果须体现 Calm 加权，并与 Elena 的读音或含义有可解释的关联
+  4. 不得与忽略 Feeling / 英文名的免费抽样是同一套未加权结果
+  5. 免费路径仍只按 Name style / `genderPreference` 抽样，不读英文名或 Feeling
+- **优先级**：P0
+- **追溯**：`specs/paid-checkout-and-fulfillment/spec.md` → Scenario：付费抽名参考 Feeling 与英文名；`design.md` §5.2
+
+---
+
+## PF-20 付费讲解须写清字义与适合此人的理由
+
+- **场景**：每张付费卡 `whyItFitsYou` 按产品验收标准撰写，模板文案不得上线
+- **入口**：履约 LLM / mock 讲解写入
+- **前置条件**：订单 ready；已抽好词表名
+- **期望结果**：
+  1. 讲解用学习者能看懂的英文，说明每个字的意思（释义须能在词表/含义表中落地）
+  2. 说明为什么适合此人：对上英文名的读音或含义，以及所选 Feeling
+  3. SHALL NOT 使用 “{hanzi} ({pinyin}) feels like a natural Chinese name for {englishName}, with a {desiredFeeling} tone.” 这类套话作为上线文案
+  4. SHALL NOT 宣称八字、五行、幸运色或算命
+  5. `selfIntroduction` 仍为可复制英文自报，且包含精确汉字
+- **优先级**：P0
+- **追溯**：`specs/paid-checkout-and-fulfillment/spec.md` 完整名卡内容与禁止项；产品/设计验收标准

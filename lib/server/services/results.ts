@@ -18,7 +18,7 @@ export type ResultsService = {
     | {
         httpStatus: 200;
         body:
-          | { status: "ready"; cards: FullCard[] }
+          | { status: "ready"; englishName: string; cards: FullCard[] }
           | { status: "failed"; message: string };
       }
   >;
@@ -55,7 +55,10 @@ export function createResultsService(deps: {
           whyItFitsYou: r.whyItFitsYou,
           selfIntroduction: r.selfIntroduction,
         }));
-        return { httpStatus: 200, body: { status: "ready", cards } };
+        return {
+          httpStatus: 200,
+          body: { status: "ready", englishName: order.englishName, cards },
+        };
       }
 
       if (order.status === "failed") {

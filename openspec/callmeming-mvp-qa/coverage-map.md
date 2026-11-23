@@ -2,7 +2,7 @@
 
 权威目录：`/workspace/openspec/callmeming-mvp/`（正式 OpenSpec **v1.1**）  
 QA 目录：`/workspace/openspec/callmeming-mvp-qa/`（QA **v1.2** 文档同步，对齐 PRD v0.5 首次自动预览）  
-场景总数：113（新增 HP-15、HP-16、FC-13、FN-11；HP-12 改为首次自动生成）  
+场景总数：117（在 113 基础上新增 PF-19、PF-20、RP-17、RP-18：付费抽名与讲解验收、结果页 H1 / 去 STATE）  
 视觉基准：`/workspace/callmeming-ui/exhibit/`
 
 ## specs/homepage.md
@@ -92,6 +92,8 @@ QA 目录：`/workspace/openspec/callmeming-mvp-qa/`（QA **v1.2** 文档同步�
 | expired 后仍履约 | PF-13 |
 | 先 2xx 再异步 | PF-14 |
 | 付费卡字段齐全 | PF-15, RP-01, RP-02 |
+| 付费抽名按 Feeling 加权并参考英文名 | PF-19 |
+| 付费讲解写清字义与适合理由 | PF-20, PF-16 |
 | 禁止命理内容 | PF-16, EX-01 |
 | 退款后链接失效 | PF-17, SE-05 |
 
@@ -116,6 +118,8 @@ QA 目录：`/workspace/openspec/callmeming-mvp-qa/`（QA **v1.2** 文档同步�
 | 复制与读音反馈 | RP-14 |
 | prefers-reduced-motion | RP-15 |
 | 轮询约定（api-contract） | RP-16 |
+| ready H1 用英文名打招呼 | RP-17 |
+| Open paper 后不展示 STATE | RP-18 |
 
 ## specs/secure-result-access-and-email/spec.md
 
@@ -151,7 +155,7 @@ QA 目录：`/workspace/openspec/callmeming-mvp-qa/`（QA **v1.2** 文档同步�
 | design §2 信息架构与状态 | HP-*, FC-*, RP-* |
 | design §3 数据模型 / 频控 | FN-05..07 |
 | design §4 表单枚举 | CO-03, CO-04 |
-| design §5 生成策略 | FN-03, FN-08, PF-16 |
+| design §5 生成策略 | FN-03, FN-08, PF-16, PF-19, PF-20 |
 | design §6 支付 | PF-05..14, CO-06, CO-10 |
 | design §7 安全链接与邮件 | SE-* |
 | design §10 已定结论 | 全部相关 P0（频控、1 年、audio null、无 cancelUrl、拼音声调等） |

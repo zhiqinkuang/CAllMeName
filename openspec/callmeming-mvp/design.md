@@ -60,15 +60,16 @@ Waffo Hosted Checkout
 ### 2.3 `/results/[token]` 结果页
 
 1. 合法 token 未就绪 → generating 并轮询（文案按「正在准备你的名字」）。
-2. ready → 3 张完整候选卡。
+2. ready → 3 张完整候选卡。H1 用顾客英文名打招呼，写成 `{englishName}, here are three names you can take with you.`（含句号）。Open paper 后正式页不展示展厅注解用的 STATE 标签。
 3. failed → 停止轮询并展示错误，无名卡。
 4. 无效/过期/退款 → 404 友好错误，无名卡，不区分原因。
 
 每张完整卡信息层级：
 
 - 大号汉字名
-- 拼音（声调符号）
-- 读音：本轮 MVP `audioUrl` 恒为 null，展示 `phoneticHint`；若将来有 URL 可播，但不挡阅读/复制
+- 拼音注音：展厅标本格式，如 `[lín · ān rán]`
+- 主纸汉字下方罗马拼音：带声调的词首大写（与 API `pinyin` 一致，如 `Lín Ānrán`），不得用去掉声调的 `phoneticHint`
+- 读音：本轮 MVP `audioUrl` 恒为 null；`phoneticHint` 为英文近似读法，在 Play 反馈中展示；若将来有 URL 可播，但不挡阅读/复制
 - **Copy name**（只复制汉字，如林安然）：桌面与拼音、Play 同一行；手机在拼音下方单独一行按钮
 - Why it fits you
 - Self-introduction + **Copy intro**
@@ -188,8 +189,8 @@ ready | failed → refunded
 ### 5.2 混合方案（已定）
 
 1. **词表**：姓氏用公有领域来源（如百家姓）并在仓库注明出处；名字用字和双字搭配用仓库内自建允许表 + 不当谐音拒绝表。SHALL NOT 爬商业起名站或许可证不明数据集。
-2. **抽样**：付费按 genderPreference + desiredFeeling 加权抽 3 个互异 `(hanzi, pinyin)`；免费仅按可选 `genderPreference` 加权，缺省 `neutral`；拼音用声调符号。
-3. **LLM（可替换适配层）**：仅付费卡写英文 `whyItFitsYou` / `selfIntroduction`；不得改汉字；安全过滤触发则重抽。MVP 默认 Anthropic Claude Sonnet（`ANTHROPIC_MODEL`）。单次超时约 20–25 秒，失败重试 1 次；仍失败 → 订单 `failed`，不自动退款。
+2. **抽样**：付费按 `genderPreference` + `desiredFeeling` 加权，并参考英文名的读音或含义（二者之一即可）从词表抽 3 个互异 `(hanzi, pinyin)`。须选词表里站得住的真名，禁止整段音译或在词表外造字（如自造「埃琳娜」）。Feeling 与英文名信号须进入抽样，不得只写在讲解里。免费仅按可选 `genderPreference` 加权，缺省 `neutral`，不使用英文名或 Feeling；拼音用声调符号。
+3. **LLM（可替换适配层）**：仅付费卡写英文 `whyItFitsYou` / `selfIntroduction`；不得改汉字；安全过滤触发则重抽。`whyItFitsYou` 须讲清每个字的意思（以词表释义为准），以及它如何对上英文名的读音或含义、还有所选 Feeling；学习者能看懂的英文；禁止套话模板，禁止命理。`selfIntroduction` 须含精确汉字，便于复制自报。MVP 默认 Anthropic Claude Sonnet（`ANTHROPIC_MODEL`）。单次超时约 20–25 秒，失败重试 1 次；仍失败 → 订单 `failed`，不自动退款。
 4. **免费路径**：只走词表，**不调 LLM**；只返回 hanzi + pinyin；SHALL 接收并使用请求中的 `genderPreference`，不得丢弃该字段。
 5. **音频**：不进本轮 MVP；`audioUrl` 保持 null。
 
@@ -245,7 +246,7 @@ ready | failed → refunded
 5. **邮件**：Resend。发件人暂定 `CallMeMing <hello@mail.callmeming.com>`（可改为 `hello@callmeming.com`，与运维对齐）。SPF/DKIM 等域名买下并解析后再配。
 6. **successUrl 不自动跳转**：结果页 generating 文案「正在准备你的名字」；约 60 秒后提示邮件链接。无 `cancelUrl`，不依赖 `/?checkout=canceled`。
 7. **邮箱**：站内表单不加可选邮箱，不预填 `buyerEmail`。
-8. **拼音**：API / 存储仍用带声调的词首大写（如 `Lǐ Wěi`、`Lín Ānrán`、`Duàn Qǐmíng`）。界面名卡注音用展厅格式 `[lín · ān rán]`（小写、`·`、方括号）；主纸与首页只显示该格式。结果页 Other candidates 可行内伴读 `[sū · jǐng xíng] · Sū Jǐngxíng`。`selfIntroduction` / Copy intro 保持词首大写，不改成括号式。`phoneticHint` 为英文近似读法，不是 IPA。
+8. **拼音**：API / 存储仍用带声调的词首大写（如 `Lǐ Wěi`、`Lín Ānrán`、`Duàn Qǐmíng`）。界面名卡注音用展厅格式 `[lín · ān rán]`（小写、`·`、方括号）。结果页主纸同时在汉字下方展示词首大写带声调罗马拼音（如 `Lín Ānrán`），与候选行一致，不得把去掉声调的 `phoneticHint` 放在该位置。Other candidates 可行内伴读 `[sū · jǐng xíng] · Sū Jǐngxíng`。`selfIntroduction` / Copy intro 保持词首大写，不改成括号式。`phoneticHint` 为英文近似读法，不是 IPA，用于 Play 反馈。
 9. **`refunded` 对外**：404，文案与无效/过期相同。
 10. **webhook 找不到本地订单**：验签后高优先级告警，返回 2xx，不用非 2xx 触发重试。本地曾 `expired` 后收到合法 `order.completed` 仍须履约。Webhook 先尽快 2xx，生成和发信异步。
 11. **音频**：不进本轮 MVP，`audioUrl` 保持 null。

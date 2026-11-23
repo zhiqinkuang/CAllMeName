@@ -40,6 +40,7 @@ describe("ResultView F-T7/F-T8", () => {
       .mockResolvedValueOnce({
         ok: true,
         status: "ready",
+        englishName: "Elena",
         cards: [card("林安然"), card("苏景行"), card("沈清越")],
       });
 
@@ -71,6 +72,7 @@ describe("ResultView F-T7/F-T8", () => {
     getResult.mockResolvedValue({
       ok: true,
       status: "ready",
+      englishName: "Elena",
       cards: [card("林安然"), card("苏景行"), card("沈清越")],
     });
 
@@ -96,6 +98,7 @@ describe("ResultView F-T7/F-T8", () => {
     getResult.mockResolvedValue({
       ok: true,
       status: "ready",
+      englishName: "Elena",
       cards: [card("林安然"), card("苏景行"), card("沈清越")],
     });
 
@@ -116,6 +119,7 @@ describe("ResultView F-T7/F-T8", () => {
     getResult.mockResolvedValue({
       ok: true,
       status: "ready",
+      englishName: "Elena",
       cards: [card("林安然"), card("苏景行"), card("沈清越")],
     });
     const user = userEvent.setup();
@@ -124,10 +128,28 @@ describe("ResultView F-T7/F-T8", () => {
     const openButtons = screen.getAllByRole("button", { name: /Open paper/i });
     await user.click(openButtons[0]);
     await waitFor(() => {
-      expect(
-        screen.getByText(/State · Open paper → 苏景行/),
-      ).toBeInTheDocument();
+      expect(document.querySelector(".pp-left .hz")?.textContent).toBe("苏景行");
     });
+    expect(screen.queryByText(/State · Open paper/i)).toBeNull();
+    expect(screen.queryByText(/STATE/i)).toBeNull();
+  });
+
+  it("greets the ready page with the customer's English name and no STATE label", async () => {
+    getResult.mockResolvedValue({
+      ok: true,
+      status: "ready",
+      englishName: "Elena",
+      cards: [card("林安然"), card("苏景行"), card("沈清越")],
+    });
+    render(<ResultView token="tok_hello" />);
+    await waitFor(() => expect(screen.getByText("林安然")).toBeInTheDocument());
+    expect(
+      screen.getByRole("heading", {
+        level: 1,
+        name: "Elena, here are three names you can take with you.",
+      }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/State · Open paper/i)).toBeNull();
   });
 
   it("shows not_found without name cards", async () => {
@@ -157,6 +179,7 @@ describe("ResultView pinyin annotation", () => {
     getResult.mockResolvedValue({
       ok: true,
       status: "ready",
+      englishName: "Elena",
       cards: [
         {
           hanzi: "段启明",
@@ -189,6 +212,12 @@ describe("ResultView pinyin annotation", () => {
     await waitFor(() => expect(screen.getByText("段启明")).toBeInTheDocument());
 
     expect(screen.getByText("[duàn · qǐ míng]")).toBeInTheDocument();
+    expect(document.querySelector(".pp-left .roman")?.textContent).toBe(
+      "Duàn Qǐmíng",
+    );
+    expect(document.querySelector(".pp-left .roman")?.textContent).not.toBe(
+      "Dwan Chee-ming",
+    );
     expect(screen.getByText("[sū · jǐng xíng] · Sū Jǐngxíng")).toBeInTheDocument();
     expect(
       screen.getByText("Hi, my Chinese name is 段启明, Duàn Qǐmíng."),

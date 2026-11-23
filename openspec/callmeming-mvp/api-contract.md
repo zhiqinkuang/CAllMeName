@@ -169,6 +169,7 @@ Body 仍可为 `{}`，不因此返回 400。
 ```json
 {
   "status": "ready",
+  "englishName": "Elena",
   "cards": [
     {
       "hanzi": "林诗涵",
@@ -182,7 +183,7 @@ Body 仍可为 `{}`，不因此返回 400。
 }
 ```
 
-`cards` 恰好 3 张。本轮 MVP `audioUrl` 恒为 `null`。`pinyin` 使用声调符号；`phoneticHint` 是英文近似读法，不是 IPA。
+`cards` 恰好 3 张。`englishName` 为该订单结账时的英文名（trim 后原样返回），供结果页 H1 打招呼。本轮 MVP `audioUrl` 恒为 `null`。`pinyin` 使用声调符号、词首大写；`phoneticHint` 是英文近似读法，不是 IPA。
 
 ### Response `202` — generating
 

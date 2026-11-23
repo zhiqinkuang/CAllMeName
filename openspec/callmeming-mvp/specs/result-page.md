@@ -6,12 +6,15 @@
 
 ## Requirement：安全链接结果页 SHALL 展示 3 张完整候选卡
 
-当结果就绪时，页面 SHALL 展示恰好 3 张完整候选名卡。  
+当结果就绪时，页面 SHALL 展示恰好 3 张完整候选名卡。
+页面 H1 SHALL 用该结果的 `englishName` 打招呼，写成 `{englishName}, here are three names you can take with you.`（含句号）；SHALL NOT 写死 Elena。
+Open paper 后正式页 SHALL NOT 展示展厅标本注解用的 STATE 标签。
 每张卡 SHALL 展示：
 
 - 定制名（`hanzi`）
-- 拼音注音：展厅标本格式，如 `[lín · ān rán]`（小写、保留声调、`·` 与方括号）。API `pinyin` 仍为带声调的词首大写（如 `Lín Ānrán`），仅用于展示格式化；主纸只显示括号小写式，不叠词首大写
-- 读音：本轮 MVP `audioUrl` 恒为 `null`，**始终**展示英文近似读法 `phoneticHint`；若将来 `audioUrl` 非 null 则可点播放
+- 拼音注音：展厅标本格式，如 `[lín · ān rán]`（小写、保留声调、`·` 与方括号）。API `pinyin` 仍为带声调的词首大写（如 `Lín Ānrán`）
+- 主纸汉字下方罗马拼音：带声调的词首大写（与 API `pinyin` 一致，如 `Lín Ānrán` / `Yú Sīyuǎn`）；SHALL NOT 在该位置展示去掉声调的 `phoneticHint`（如 `Yu Siyuan`）
+- 读音：本轮 MVP `audioUrl` 恒为 `null`；英文近似读法 `phoneticHint` 在 Play 反馈中展示；若将来 `audioUrl` 非 null 则可点播放
 - 为什么适合你（`whyItFitsYou`）
 - 可复制的自我介绍（`selfIntroduction`）
 - 独立的 `Copy name` 与 `Copy intro`
@@ -21,6 +24,8 @@
 - GIVEN 用户打开 `/results/[token]`
 - WHEN `GET /api/results/:token` 返回 200 且 `status: "ready"`，`cards` 长度为 3
 - THEN 页面 SHALL 渲染 3 张完整候选卡
+- AND H1 SHALL 为 `{englishName}, here are three names you can take with you.`（例如 `Elena, here are three names you can take with you.`）
+- AND 页面 SHALL NOT 展示 STATE / `State · Open paper` 标本注解
 - AND 每张卡 SHALL 可见上述 Must 字段的文本内容
 
 ### Scenario：名卡拼音注音为展厅标本格式
@@ -28,6 +33,7 @@
 - GIVEN 结果页处于 ready，且某张卡的 API `pinyin` 为 `Duàn Qǐmíng` 或 `Lín Ānrán`
 - WHEN 渲染主纸与 Other candidates
 - THEN 主纸拼音注音 SHALL 为 `[duàn · qǐ míng]` 或 `[lín · ān rán]`
+- AND 主纸汉字下方罗马拼音 SHALL 为 `Duàn Qǐmíng` 或 `Lín Ānrán`（词首大写、保留声调）
 - AND Other candidates 行可采用 `[sū · jǐng xíng] · Sū Jǐngxíng`（括号小写式 + 词首大写伴读）
 - AND `selfIntroduction` 与 Copy intro 的文本 SHALL 保持词首大写（如句中的 `Duàn Qǐmíng`），SHALL NOT 改写成括号小写式
 - AND Copy name SHALL 只复制 `hanzi`，不含拼音字符串
@@ -36,8 +42,9 @@
 
 - GIVEN 某张卡的 `audioUrl` 为 `null`（本轮 MVP 恒为 null）
 - WHEN 渲染读音区域
-- THEN 系统 SHALL 展示 `phoneticHint`
-- AND SHALL NOT 展示无法播放的伪播放控件并声称可听（可隐藏播放按钮或显示为不可用，但读法文本必须在）
+- THEN 系统 SHALL 在 Play 反馈中展示 `phoneticHint`（英文近似读法）
+- AND 主纸汉字下方罗马拼音 SHALL 仍为带声调的词首大写 `pinyin`，不得改成无声调 hint
+- AND SHALL NOT 展示无法播放的伪播放控件并声称可听（可隐藏播放按钮或显示为不可用）
 
 ### Scenario：有音频时可播放（前瞻；本轮不交付音频）
 

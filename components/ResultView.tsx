@@ -41,6 +41,7 @@ export function ResultView({
 }) {
   const [status, setStatus] = useState<ViewStatus>("loading");
   const [cards, setCards] = useState<FullCard[] | null>(null);
+  const [englishName, setEnglishName] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState(
     Math.min(Math.max(initialPaperIndex, 0), 2),
@@ -72,8 +73,9 @@ export function ResultView({
   }, []);
 
   const applyReady = useCallback(
-    (next: FullCard[]) => {
+    (next: FullCard[], name: string) => {
       setCards(next);
+      setEnglishName(name);
       setStatus("ready");
       setMessage(null);
       setTimedOutHint(false);
@@ -90,7 +92,7 @@ export function ResultView({
 
     if (result.ok && result.status === "ready") {
       clearPoll();
-      applyReady(result.cards);
+      applyReady(result.cards, result.englishName);
       return;
     }
 
@@ -302,7 +304,9 @@ export function ResultView({
   const others = cards
     .map((c, i) => ({ card: c, index: i }))
     .filter((x) => x.index !== activeIndex);
-  const showStateTag = activeIndex !== 0;
+  const headline = englishName
+    ? `${englishName}, here are three names you can take with you.`
+    : "Here are three names you can take with you.";
 
   return (
     <div className="page-shell">
@@ -313,12 +317,7 @@ export function ResultView({
         </div>
 
         <div className="result-head">
-          {showStateTag && (
-            <span className="state-tag">
-              State · Open paper → {primary.hanzi}
-            </span>
-          )}
-          <h1>Here are three names you can take with you</h1>
+          <h1>{headline}</h1>
           <p className="result-lead">
             Three complete name cards. One primary paper shows Play, Copy name,
             Why this suits you, a self-intro, and Copy intro. Open paper on
@@ -417,7 +416,7 @@ function PrimaryPaper({
       <div className="pp-left">
         <div className="py">{formatPinyinSpecimen(name.pinyin)}</div>
         <div className="hz">{name.hanzi}</div>
-        <div className="roman">{name.phoneticHint}</div>
+        <div className="roman">{name.pinyin}</div>
         <div className="acts">
           <button
             type="button"

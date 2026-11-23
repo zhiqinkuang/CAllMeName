@@ -12,10 +12,11 @@
 - **前置条件**：`GET /api/results/:token` → 200，`status: "ready"`，`cards.length === 3`
 - **期望结果**：
   1. API / 数据层：恰好 3 张完整 FullCard（字段齐全）
-  2. UI：一张**主纸**展示当前主名的 Must 字段：hanzi、拼音注音（展厅格式，如 `[lín · ān rán]` / `[duàn · qǐ míng]`）、phoneticHint、whyItFitsYou、英文 `selfIntroduction`，以及 `Copy name` / `Copy intro`。API `pinyin` 仍为词首大写存储值。`selfIntroduction` 中的拼音保持词首大写（如 `Duàn Qǐmíng`），不改成括号式。Other candidates 可采用 `[sū · jǐng xíng] · Sū Jǐngxíng`
-  3. UI：存在 **Other candidates** 目录行；可通过 **Open paper** 将另一候选升为主纸；升为主纸后该名同样具备完整 Must 字段与复制控件
-  4. SHALL NOT 按旧期望「三张同构完整卡同时竖排铺满」判失败
-  5. 不强制登录即可查看
+  2. UI：一张**主纸**展示当前主名的 Must 字段：hanzi、拼音注音（展厅格式，如 `[lín · ān rán]` / `[duàn · qǐ míng]`）、汉字下方带声调词首大写罗马拼音（如 `Lín Ānrán`，不得用无声调 `phoneticHint`）、Play 反馈中的 phoneticHint、whyItFitsYou、英文 `selfIntroduction`，以及 `Copy name` / `Copy intro`。API `pinyin` 仍为词首大写存储值。`selfIntroduction` 中的拼音保持词首大写（如 `Duàn Qǐmíng`），不改成括号式。Other candidates 可采用 `[sū · jǐng xíng] · Sū Jǐngxíng`
+  3. H1 SHALL 为 `{englishName}, here are three names you can take with you.`（含句号；用 API 返回的英文名，不得写死 Elena）
+  4. UI：存在 **Other candidates** 目录行；可通过 **Open paper** 将另一候选升为主纸；升为主纸后该名同样具备完整 Must 字段与复制控件。正式页 SHALL NOT 出现展厅注解用的 STATE / `State · Open paper` 标签
+  5. SHALL NOT 按旧期望「三张同构完整卡同时竖排铺满」判失败
+  6. 不强制登录即可查看
 - **优先级**：P0
 - **追溯**：展厅标本设计说明 §3；主管收口；`api-contract.md` FullCard ×3；`specs/result-page.md` ready 场景（字段集合）
 
@@ -27,9 +28,9 @@
 - **入口**：结果卡读音区域
 - **前置条件**：卡的 `audioUrl` 为 `null`（本轮恒为）
 - **期望结果**：
-  1. 展示 `phoneticHint`
-  2. SHALL NOT 展示无法播放的伪播放控件并声称可听（可隐藏播放按钮或显示不可用）
-  3. 读法文本必须在
+  1. Play 反馈中展示 `phoneticHint`（英文近似读法）
+  2. 主纸汉字下方罗马拼音仍为带声调词首大写（API `pinyin`），不得改成无声调 hint
+  3. SHALL NOT 展示无法播放的伪播放控件并声称可听（可隐藏播放按钮或显示不可用）
 - **优先级**：P0
 - **追溯**：`specs/result-page.md` → Scenario：无音频时降级；`design.md` §10.11  
 - **说明（与主管底稿差异）**：正式包明确本轮不做 TTS / 非空 audioUrl；可点播音频**不是**本轮交付项。以正式 OpenSpec 为准。
@@ -233,3 +234,30 @@
   3. 页面隐藏时可降频（契约允许）
 - **优先级**：P0
 - **追溯**：`api-contract.md` §3 轮询约定
+
+---
+
+## RP-17 结果页 H1 用英文名打招呼
+
+- **场景**：ready 时 H1 使用该订单英文名，并带句号
+- **入口**：`/results/[token]` ready 态
+- **前置条件**：`GET /api/results/:token` 返回 200 ready，且 `englishName` 为 `"Elena"`（或其它真实订单英文名）
+- **期望结果**：
+  1. H1 为 `Elena, here are three names you can take with you.`（或对应 `{englishName}, here are three names you can take with you.`）
+  2. SHALL NOT 写死 Elena；SHALL 使用 API 返回的 `englishName`
+  3. 句末有句号
+- **优先级**：P0
+- **追溯**：`specs/result-page.md` ready 场景；`api-contract.md` §3 `englishName`
+
+---
+
+## RP-18 Open paper 后不展示 STATE 标签
+
+- **场景**：正式结果页的 STATE 标签仅为展厅标本注解，上线页不出现
+- **入口**：ready 态点击 Other candidates 的 Open paper
+- **前置条件**：结果页 ready，主纸已切换到另一候选
+- **期望结果**：
+  1. 被打开的名字成为主纸并具备完整 Must 字段
+  2. SHALL NOT 展示 `STATE`、`State · Open paper` 或同类标本注解标签
+- **优先级**：P0
+- **追溯**：`specs/result-page.md`；设计验收（正式页不要带 STATE）

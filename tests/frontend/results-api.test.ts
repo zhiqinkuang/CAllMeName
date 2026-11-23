@@ -17,12 +17,14 @@ describe("F-T7/F-T8 getResult", () => {
       status: 200,
       json: async () => ({
         status: "ready",
+        englishName: "Elena",
         cards: [full, { ...full, hanzi: "苏景行" }, { ...full, hanzi: "沈清越" }],
       }),
     });
     const result = await getResult("tok", fetchImpl as unknown as typeof fetch);
     expect(result).toMatchObject({ ok: true, status: "ready" });
     if (result.ok && result.status === "ready") {
+      expect(result.englishName).toBe("Elena");
       expect(result.cards).toHaveLength(3);
       expect(result.cards[0].audioUrl).toBeNull();
     }

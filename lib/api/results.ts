@@ -1,6 +1,6 @@
 import type { ApiErrorBody, FullCard } from "./types";
 
-export type ResultsReady = { ok: true; status: "ready"; cards: FullCard[] };
+export type ResultsReady = { ok: true; status: "ready"; englishName: string; cards: FullCard[] };
 export type ResultsGenerating = { ok: true; status: "generating" };
 export type ResultsFailed = {
   ok: false;
@@ -98,6 +98,7 @@ export async function getResult(
 
   if (status === "ready") {
     const cards = (json as { cards?: unknown })?.cards;
+    const englishName = (json as { englishName?: unknown })?.englishName;
     if (!Array.isArray(cards) || cards.length !== 3 || !cards.every(isFullCard)) {
       return {
         ok: false,
@@ -105,7 +106,8 @@ export async function getResult(
         message: "Unexpected response. Please try again.",
       };
     }
-    return { ok: true, status: "ready", cards };
+    const name = typeof englishName === "string" ? englishName.trim() : "";
+    return { ok: true, status: "ready", englishName: name, cards };
   }
 
   if (status === "generating") {

@@ -144,7 +144,18 @@
 
 ### Requirement: 完整名卡内容与禁止项
 
-付费名卡 SHALL 像真人会用：汉字 2–3 字；可轻微借鉴英文名读音但禁止整段音译长串；SHALL NOT 输出八字/五行/幸运色。
+付费名卡 SHALL 像真人会用：汉字 2–3 字，且须来自词表；选名时 SHALL 按 `desiredFeeling` 加权，并参考英文名的读音或含义（二者之一即可）；SHALL NOT 把英文名整段音译或在词表外造字（如自造「埃琳娜」）。Feeling 与英文名信号须进入抽样步骤，不得只出现在讲解里。免费路径不受影响，仍只按 Name style / `genderPreference` 抽样。
+
+`whyItFitsYou` SHALL 用学习者能看懂的英文写清：每个字的意思，以及这个名字为什么适合此人——如何对上英文名的读音或含义，以及所选 Feeling。SHALL NOT 使用套话模板（例如 “{hanzi} feels like a natural Chinese name for {englishName}, with a {desiredFeeling} tone.”）。SHALL NOT 输出八字/五行/幸运色。`selfIntroduction` SHALL 包含精确汉字，便于复制自报。
+
+#### Scenario: 付费抽名参考 Feeling 与英文名
+
+- GIVEN 订单的 `englishName` 为 `"Elena"`，`genderPreference` 为 `neutral`，`desiredFeeling` 为 `calm`
+- WHEN 履约抽样 3 个付费名底
+- THEN 3 个名字均来自词表，汉字 2–3 字
+- AND SHALL NOT 输出整段音译或词表外造名（如「埃琳娜」）
+- AND 抽样结果须体现 Feeling 加权，并与英文名的读音或含义有可解释的关联
+- AND 不得与忽略 Feeling / 英文名的免费抽样完全同一套逻辑
 
 #### Scenario: 付费卡字段齐全
 
@@ -152,9 +163,12 @@
 - WHEN `GET /api/results/:token`
 - THEN 响应 `200` 且 `status` 为 `ready`
 - AND `cards.length` 为 3
+- AND 响应含该订单的 `englishName`
 - AND 每张含 `phoneticHint` 与英文 `whyItFitsYou`、`selfIntroduction`
+- AND `whyItFitsYou` 须讲清字义，以及与英文名读音或含义、所选 Feeling 的对应；SHALL NOT 只给套话模板
+- AND `selfIntroduction` SHALL 包含该卡精确汉字
 - AND 本轮 MVP 每张卡的 `audioUrl` 为 `null`（不堵塞 ready）
-- AND 每张卡的 `pinyin` 使用声调符号，SHALL NOT 使用数字音调
+- AND 每张卡的 `pinyin` 使用声调符号、词首大写，SHALL NOT 使用数字音调
 
 #### Scenario: 禁止命理内容
 

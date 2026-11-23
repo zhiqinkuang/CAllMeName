@@ -6,6 +6,7 @@ import {
   assertNoFortuneTelling,
   generatePaidNameBases,
 } from "../names/generator";
+import { buildNameExplainContext } from "../names/paid-scoring";
 import type { Persistence } from "../persistence/types";
 import type { FullCard, NameCardRecord } from "../types";
 
@@ -50,11 +51,16 @@ export function createFulfillmentService(deps: {
             const bases = generatePaidNameBases({
               genderPreference: order.genderPreference,
               desiredFeeling: order.desiredFeeling,
+              englishName: order.englishName,
               count: 3,
             });
 
             const full: FullCard[] = [];
             for (const base of bases) {
+              const baseContext = buildNameExplainContext(
+                base.hanzi,
+                order.englishName,
+              );
               let explained = await llm.explainName({
                 englishName: order.englishName,
                 genderPreference: order.genderPreference,
@@ -62,6 +68,9 @@ export function createFulfillmentService(deps: {
                 hanzi: base.hanzi,
                 pinyin: base.pinyin,
                 phoneticHint: base.phoneticHint,
+                characterMeanings: baseContext.characterMeanings,
+                givenMeaning: baseContext.givenMeaning,
+                englishNameMeanings: baseContext.englishNameMeanings,
               });
 
               // Safety: must not rewrite hanzi; no fortune-telling
@@ -75,9 +84,14 @@ export function createFulfillmentService(deps: {
                 const retryBases = generatePaidNameBases({
                   genderPreference: order.genderPreference,
                   desiredFeeling: order.desiredFeeling,
+                  englishName: order.englishName,
                   count: 1,
                 });
                 const rb = retryBases[0]!;
+                const retryContext = buildNameExplainContext(
+                  rb.hanzi,
+                  order.englishName,
+                );
                 explained = await llm.explainName({
                   englishName: order.englishName,
                   genderPreference: order.genderPreference,
@@ -85,6 +99,9 @@ export function createFulfillmentService(deps: {
                   hanzi: rb.hanzi,
                   pinyin: rb.pinyin,
                   phoneticHint: rb.phoneticHint,
+                  characterMeanings: retryContext.characterMeanings,
+                  givenMeaning: retryContext.givenMeaning,
+                  englishNameMeanings: retryContext.englishNameMeanings,
                 });
                 if (
                   !explained.selfIntroduction.includes(rb.hanzi) ||
